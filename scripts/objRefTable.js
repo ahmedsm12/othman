@@ -54,6 +54,13 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Exps.max,
 		C3.Plugins.Text.Exps.Text,
 		C3.Plugins.System.Exps.tokenat,
+		C3.Plugins.AJAX.Acts.Post,
+		C3.Plugins.Date.Exps.GetDate,
+		C3.Plugins.Date.Exps.Now,
+		C3.Plugins.Date.Exps.GetMonth,
+		C3.Plugins.Date.Exps.GetYear,
+		C3.Plugins.Date.Exps.GetHours,
+		C3.Plugins.Date.Exps.GetMinutes,
 		C3.Plugins.Browser.Cnds.IsFullscreen,
 		C3.Plugins.Browser.Acts.CancelFullScreen
 	];
