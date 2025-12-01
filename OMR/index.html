@@ -225,6 +225,75 @@
             font-size: 0.9rem;
         }
         
+        .sensitivity-control {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            border: 2px solid #3498db;
+        }
+        
+        .sensitivity-title {
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .sensitivity-value {
+            background: #3498db;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .slider-container {
+            margin: 10px 0;
+        }
+        
+        .sensitivity-slider {
+            width: 100%;
+            height: 10px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(to right, #2ecc71, #f39c12, #e74c3c);
+            outline: none;
+            border-radius: 5px;
+        }
+        
+        .sensitivity-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #2c3e50;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .sensitivity-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+        
+        .sensitivity-help {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #856404;
+        }
+        
         .answer-key {
             background: #fffde7;
             border: 2px solid #f1c40f;
@@ -415,9 +484,10 @@
             width: 95%;
             max-width: 800px;
             border-radius: 10px;
-            transform: scaleX(-1);
+            /* إزالة خاصية flip */
             max-height: 70vh;
             object-fit: contain;
+            transform: scaleX(1); /* إصلاح: جعل الصورة طبيعية */
         }
         
         .camera-controls {
@@ -437,6 +507,10 @@
             color: white;
             transition: transform 0.3s;
             min-width: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
         
         .camera-control-btn:hover {
@@ -451,6 +525,15 @@
             background: #e74c3c;
         }
         
+        .flash-btn {
+            background: #f39c12;
+        }
+        
+        .flash-btn.active {
+            background: #f1c40f;
+            box-shadow: 0 0 20px #f1c40f;
+        }
+        
         .camera-guide {
             position: absolute;
             top: 20px;
@@ -461,6 +544,41 @@
             border-radius: 10px;
             font-size: 0.9rem;
             max-width: 300px;
+        }
+        
+        .camera-status {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .camera-flash {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.1s;
+            z-index: 1;
+        }
+        
+        .camera-flash.active {
+            opacity: 0.8;
+            animation: flash 0.3s;
+        }
+        
+        @keyframes flash {
+            0% { opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0; }
         }
         
         .results-details {
@@ -738,6 +856,62 @@
             text-align: center;
             margin-top: 10px;
         }
+        
+        .debug-info {
+            background: #2c3e50;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            font-family: monospace;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        
+        .test-scan-btn {
+            background: #9b59b6;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        
+        .test-scan-btn:hover {
+            background: #8e44ad;
+        }
+        
+        .torch-control {
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .torch-btn {
+            background: #34495e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .torch-btn:hover {
+            background: #2c3e50;
+        }
+        
+        .torch-btn.active {
+            background: #f1c40f;
+            color: #2c3e50;
+            box-shadow: 0 0 15px #f1c40f;
+        }
     </style>
 </head>
 <body>
@@ -804,6 +978,27 @@
                     </div>
                 </div>
                 
+                <div class="sensitivity-control">
+                    <div class="sensitivity-title">
+                        <span>🎚️ حساسية كشف الدوائر المملوءة</span>
+                        <span class="sensitivity-value" id="sensitivityValue">50%</span>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <input type="range" min="1" max="100" value="50" class="sensitivity-slider" id="sensitivitySlider">
+                    </div>
+                    
+                    <div class="sensitivity-labels">
+                        <span>🔍 حساسية عالية</span>
+                        <span>⚖️ متوسطة</span>
+                        <span>💡 حساسية منخفضة</span>
+                    </div>
+                    
+                    <div class="sensitivity-help">
+                        <strong>نصيحة:</strong> اضبط الحساسية حسب جودة الصورة. استخدم حساسية أعلى للصور الداكنة، وأقل للصور الفاتحة.
+                    </div>
+                </div>
+                
                 <div class="controls">
                     <button class="control-btn scan-btn" id="scanAnswers">
                         🔍 مسح الإجابات (20 سؤالاً)
@@ -824,6 +1019,15 @@
                     <div class="loading"></div>
                     <p style="text-align: center;">جاري معالجة الصورة...</p>
                 </div>
+                
+                <div id="debugInfo" class="debug-info hidden">
+                    <strong>معلومات التصحيح:</strong>
+                    <div id="debugContent"></div>
+                </div>
+                
+                <button class="test-scan-btn" id="testScanBtn">
+                    🔬 اختبار المسح (للتطوير)
+                </button>
             </div>
             
             <!-- القسم الأيمن: النتائج والإجابات -->
@@ -885,17 +1089,36 @@
             <strong>توجيهات الكاميرا:</strong><br>
             • أمسك الهاتف بشكل عمودي<br>
             • اجعل النموذج داخل الإطار<br>
-            • اضغط التقاط عند التأكد
+            • اضغط التقاط عند التأكد<br>
+            • استخدم الفلاش في الإضاءة المنخفضة
         </div>
+        
+        <div class="camera-status" id="cameraStatus">
+            الكاميرا: جاهزة
+        </div>
+        
+        <div class="camera-flash" id="cameraFlash"></div>
+        
         <video id="cameraView" class="camera-video" autoplay playsinline></video>
+        
         <div class="camera-controls">
+            <button id="flashBtn" class="camera-control-btn flash-btn">
+                <span>⚡</span> فلاش
+            </button>
             <button id="captureBtn" class="camera-control-btn capture-btn">
-                📷 التقاط صورة
+                <span>📷</span> التقاط صورة
             </button>
             <button id="closeCamera" class="camera-control-btn close-camera-btn">
-                ✕ إغلاق الكاميرا
+                <span>✕</span> إغلاق الكاميرا
             </button>
         </div>
+        
+        <div class="torch-control">
+            <button id="torchBtn" class="torch-btn">
+                <span>🔦</span> مصباح يدوي (للإضاءة المستمرة)
+            </button>
+        </div>
+        
         <canvas id="cameraCanvas" class="hidden"></canvas>
     </div>
 
@@ -946,23 +1169,24 @@
         let ctx = canvas.getContext('2d');
         let isProcessing = false;
         let cameraStream = null;
-        let currentRotation = 0; // 0, 90, 180, 270 درجة
+        let currentRotation = 0;
         let isEditing = false;
         let editingQuestion = null;
+        let sensitivity = 50;
+        let isFlashOn = false;
+        let isTorchOn = false;
+        let videoTrack = null;
 
-        // نموذج الإجابة الصحيحة لـ20 سؤالاً (سيتم تحميله من localStorage إذا موجود)
+        // نموذج الإجابة الصحيحة
         let correctAnswers = JSON.parse(localStorage.getItem('correctAnswers')) || {
-            // العمود الأول: الأسئلة 1-10
             1: 'أ', 2: 'ب', 3: 'ج', 4: 'د', 5: 'أ',
             6: 'ب', 7: 'ج', 8: 'د', 9: 'أ', 10: 'ب',
-            // العمود الثاني: الأسئلة 11-20
             11: 'ج', 12: 'د', 13: 'أ', 14: 'ب', 15: 'ج',
             16: 'د', 17: 'أ', 18: 'ب', 19: 'ج', 20: 'د'
         };
 
-        // إحداثيات الأسئلة في النموذج (نسبية) - نظام العمودين
+        // إحداثيات الأسئلة
         const questionCoordinates = {
-            // العمود الأول (الأسئلة 1-10) - دوائر من اليمين: أ، ب، ج، د
             1: { column: 1, row: 1, x: 0.15, y: 0.25, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
             2: { column: 1, row: 2, x: 0.15, y: 0.30, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
             3: { column: 1, row: 3, x: 0.15, y: 0.35, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
@@ -974,7 +1198,6 @@
             9: { column: 1, row: 9, x: 0.15, y: 0.65, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
             10: { column: 1, row: 10, x: 0.15, y: 0.70, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
             
-            // العمود الثاني (الأسئلة 11-20) - دوائر من اليمين: أ، ب، ج، د
             11: { column: 2, row: 1, x: 0.55, y: 0.25, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
             12: { column: 2, row: 2, x: 0.55, y: 0.30, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
             13: { column: 2, row: 3, x: 0.55, y: 0.35, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
@@ -992,6 +1215,7 @@
             setupEventListeners();
             generateAnswerKeyDisplay();
             updateOrientationIndicator();
+            updateSensitivityDisplay();
         }
 
         // ================ إعداد مستمعي الأحداث ================
@@ -1040,15 +1264,27 @@
 
             // مسح الإجابات
             document.getElementById('scanAnswers').addEventListener('click', scanAnswers);
+            
+            // اختبار المسح
+            document.getElementById('testScanBtn').addEventListener('click', testScan);
 
             // إعادة التعيين
             document.getElementById('resetBtn').addEventListener('click', resetApp);
+            
+            // سلايدر الحساسية
+            document.getElementById('sensitivitySlider').addEventListener('input', updateSensitivity);
             
             // زر التقاط الصورة من الكاميرا
             document.getElementById('captureBtn').addEventListener('click', captureImage);
             
             // زر إغلاق الكاميرا
             document.getElementById('closeCamera').addEventListener('click', closeCamera);
+            
+            // زر الفلاش
+            document.getElementById('flashBtn').addEventListener('click', toggleFlash);
+            
+            // زر المصباح اليدوي
+            document.getElementById('torchBtn').addEventListener('click', toggleTorch);
             
             // زر تعديل الإجابات
             document.getElementById('editAnswersBtn').addEventListener('click', openEditModal);
@@ -1065,6 +1301,17 @@
             document.getElementById('setAllD').addEventListener('click', () => setAllAnswers('د'));
             document.getElementById('clearAll').addEventListener('click', clearAllAnswers);
             document.getElementById('applyBulkEdit').addEventListener('click', applyBulkEdit);
+        }
+
+        // ================ تحديث الحساسية ================
+        function updateSensitivity() {
+            const slider = document.getElementById('sensitivitySlider');
+            sensitivity = parseInt(slider.value);
+            updateSensitivityDisplay();
+        }
+
+        function updateSensitivityDisplay() {
+            document.getElementById('sensitivityValue').textContent = sensitivity + '%';
         }
 
         // ================ معالجة رفع الصورة ================
@@ -1088,16 +1335,21 @@
                 
                 // ضبط أبعاد الكانفاس بناءً على التدوير الحالي
                 if (currentRotation === 90 || currentRotation === 270) {
-                    canvas.width = img.height;
-                    canvas.height = img.width;
+                    canvas.width = Math.min(img.height, 800);
+                    canvas.height = Math.min(img.width, 600);
                 } else {
-                    canvas.width = img.width;
-                    canvas.height = img.height;
+                    canvas.width = Math.min(img.width, 800);
+                    canvas.height = Math.min(img.height, 600);
                 }
                 
                 drawImageWithRotation();
                 processedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 showLoading(false);
+                showDebugInfo('تم تحميل الصورة بنجاح. الأبعاد: ' + canvas.width + 'x' + canvas.height);
+            };
+            img.onerror = function() {
+                showLoading(false);
+                alert('حدث خطأ في تحميل الصورة. تأكد من أن الملف صورة صالحة.');
             };
             img.src = src;
         }
@@ -1130,7 +1382,6 @@
 
             showLoading(true);
             
-            // تحليل الصورة لاكتشاف إذا كانت مقلوبة
             setTimeout(() => {
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const brightness = analyzeImageBrightness(imageData);
@@ -1201,11 +1452,24 @@
             ctx.translate(canvas.width / 2, canvas.height / 2);
             ctx.rotate(currentRotation * Math.PI / 180);
             
-            // رسم الصورة في المركز
+            // رسم الصورة في المركز مع الحفاظ على نسبة العرض إلى الارتفاع
+            let drawWidth, drawHeight;
+            if (currentRotation === 90 || currentRotation === 270) {
+                drawWidth = originalImage.height;
+                drawHeight = originalImage.width;
+            } else {
+                drawWidth = originalImage.width;
+                drawHeight = originalImage.height;
+            }
+            
+            // التحجيم ليتناسب مع الكانفاس
+            const scale = Math.min(canvas.width / drawWidth, canvas.height / drawHeight) * 0.9;
+            ctx.scale(scale, scale);
+            
             ctx.drawImage(
                 originalImage, 
-                -originalImage.width / 2, 
-                -originalImage.height / 2
+                -drawWidth / 2, 
+                -drawHeight / 2
             );
             
             ctx.restore();
@@ -1226,14 +1490,18 @@
             indicator.textContent = text;
         }
 
-        // ================ الكاميرا ================
+        // ================ الكاميرا - محسنة ================
         async function openCamera() {
             try {
+                updateCameraStatus('جاري تشغيل الكاميرا...');
+                
+                // طلب إذن استخدام الكاميرا مع إعدادات أفضل
                 cameraStream = await navigator.mediaDevices.getUserMedia({
                     video: { 
                         facingMode: 'environment',
-                        width: { ideal: 1920 },
-                        height: { ideal: 1080 }
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        frameRate: { ideal: 30 }
                     },
                     audio: false
                 });
@@ -1241,12 +1509,27 @@
                 const cameraView = document.getElementById('cameraView');
                 cameraView.srcObject = cameraStream;
                 
+                // الحصول على المسار الفيديو للتحكم في المصباح
+                videoTrack = cameraStream.getVideoTracks()[0];
+                
+                // تحديث حالة الكاميرا
+                updateCameraStatus('الكاميرا جاهزة');
+                
+                // إظهار نافذة الكاميرا
                 document.getElementById('cameraModal').classList.remove('hidden');
                 
+                // تحديث واجهة المصباح
+                updateTorchButton();
+                
             } catch (error) {
+                updateCameraStatus('خطأ في تشغيل الكاميرا');
                 alert('حدث خطأ في تشغيل الكاميرا: ' + error.message);
                 console.error('Camera error:', error);
             }
+        }
+
+        function updateCameraStatus(status) {
+            document.getElementById('cameraStatus').textContent = status;
         }
 
         function captureImage() {
@@ -1254,32 +1537,123 @@
             const cameraCanvas = document.getElementById('cameraCanvas');
             const context = cameraCanvas.getContext('2d');
             
+            // استخدام فلاش مرئي عند التقاط الصورة
+            if (isFlashOn) {
+                triggerVisualFlash();
+            }
+            
             cameraCanvas.width = cameraView.videoWidth;
             cameraCanvas.height = cameraView.videoHeight;
             
+            // رسم الفيديو على الكانفاس (بدون flip)
             context.drawImage(cameraView, 0, 0, cameraCanvas.width, cameraCanvas.height);
             
-            const imageData = cameraCanvas.toDataURL('image/png');
-            closeCamera();
+            const imageData = cameraCanvas.toDataURL('image/jpeg', 0.9);
             
             showLoading(true);
             setTimeout(() => {
                 loadImage(imageData);
                 showLoading(false);
+                closeCamera();
             }, 500);
         }
 
+        function triggerVisualFlash() {
+            const flashElement = document.getElementById('cameraFlash');
+            flashElement.classList.add('active');
+            
+            setTimeout(() => {
+                flashElement.classList.remove('active');
+            }, 300);
+        }
+
+        function toggleFlash() {
+            isFlashOn = !isFlashOn;
+            const flashBtn = document.getElementById('flashBtn');
+            
+            if (isFlashOn) {
+                flashBtn.classList.add('active');
+                flashBtn.innerHTML = '<span>⚡</span> فلاش: تشغيل';
+                updateCameraStatus('الفلاش: تشغيل');
+            } else {
+                flashBtn.classList.remove('active');
+                flashBtn.innerHTML = '<span>⚡</span> فلاش';
+                updateCameraStatus('الفلاش: إيقاف');
+            }
+        }
+
+        async function toggleTorch() {
+            if (!videoTrack || !videoTrack.getCapabilities().torch) {
+                alert('هذا الجهاز لا يدعم المصباح اليدوي.');
+                return;
+            }
+            
+            try {
+                isTorchOn = !isTorchOn;
+                const torchBtn = document.getElementById('torchBtn');
+                
+                await videoTrack.applyConstraints({
+                    advanced: [{ torch: isTorchOn }]
+                });
+                
+                if (isTorchOn) {
+                    torchBtn.classList.add('active');
+                    torchBtn.innerHTML = '<span>🔦</span> المصباح: تشغيل';
+                    updateCameraStatus('المصباح اليدوي: تشغيل');
+                } else {
+                    torchBtn.classList.remove('active');
+                    torchBtn.innerHTML = '<span>🔦</span> مصباح يدوي';
+                    updateCameraStatus('المصباح اليدوي: إيقاف');
+                }
+            } catch (error) {
+                console.error('Error toggling torch:', error);
+                alert('تعذر التحكم في المصباح اليدوي.');
+            }
+        }
+
+        function updateTorchButton() {
+            const torchBtn = document.getElementById('torchBtn');
+            
+            if (videoTrack && videoTrack.getCapabilities().torch) {
+                torchBtn.classList.remove('hidden');
+            } else {
+                torchBtn.classList.add('hidden');
+            }
+        }
+
         function closeCamera() {
+            // إيقاف المصباح اليدوي إذا كان يعمل
+            if (isTorchOn && videoTrack) {
+                videoTrack.applyConstraints({
+                    advanced: [{ torch: false }]
+                }).catch(() => {});
+                isTorchOn = false;
+            }
+            
+            // إيقاف بث الكاميرا
             if (cameraStream) {
                 cameraStream.getTracks().forEach(track => {
                     track.stop();
                 });
                 cameraStream = null;
+                videoTrack = null;
             }
             
+            // إخفاء نافذة الكاميرا
             document.getElementById('cameraModal').classList.add('hidden');
             const cameraView = document.getElementById('cameraView');
             cameraView.srcObject = null;
+            
+            // إعادة تعيين حالة الفلاش
+            isFlashOn = false;
+            const flashBtn = document.getElementById('flashBtn');
+            flashBtn.classList.remove('active');
+            flashBtn.innerHTML = '<span>⚡</span> فلاش';
+            
+            // إعادة تعيين حالة المصباح
+            const torchBtn = document.getElementById('torchBtn');
+            torchBtn.classList.remove('active');
+            torchBtn.innerHTML = '<span>🔦</span> مصباح يدوي';
         }
 
         // ================ تصحيح المنظور ================
@@ -1292,23 +1666,30 @@
             showLoading(true);
             
             setTimeout(() => {
-                // زيادة التباين
+                // تحويل إلى تدرجات الرمادي
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imageData.data;
                 
-                enhanceContrast(data);
-                ctx.putImageData(imageData, 0, 0);
+                for (let i = 0; i < data.length; i += 4) {
+                    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                    data[i] = avg;
+                    data[i + 1] = avg;
+                    data[i + 2] = avg;
+                }
                 
-                // تصحيح طفيف للمنظور
-                applyPerspectiveCorrection();
+                // زيادة التباين
+                enhanceContrast(data);
+                
+                ctx.putImageData(imageData, 0, 0);
                 
                 showLoading(false);
                 alert('تم تصحيح تشوه الصورة بنجاح!');
+                showDebugInfo('تم تطبيق تصحيح المنظور وزيادة التباين');
             }, 1500);
         }
 
         function enhanceContrast(data) {
-            const contrast = 1.3;
+            const contrast = 1.5;
             const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
             
             for (let i = 0; i < data.length; i += 4) {
@@ -1318,44 +1699,124 @@
             }
         }
 
-        function applyPerspectiveCorrection() {
-            // محاكاة تصحيح المنظور
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
-            
-            tempCanvas.width = canvas.width;
-            tempCanvas.height = canvas.height;
-            
-            tempCtx.drawImage(canvas, 0, 0);
-            
-            // تطبيق تصحيح طفيف
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(tempCanvas, 10, 10, canvas.width - 20, canvas.height - 20);
-            
-            processedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        }
-
         // ================ مسح الإجابات ================
         function scanAnswers() {
             if (!processedImage) {
-                alert('الرجاء معالجة الصورة أولاً');
+                alert('الرجاء رفع ومعالجة صورة أولاً');
                 return;
             }
 
             showLoading(true);
+            showDebugInfo('بدء مسح الإجابات...');
             
             setTimeout(() => {
-                const scannedAnswers = detectAnswers();
-                const results = compareAnswers(scannedAnswers);
-                displayResults(results);
+                try {
+                    const scannedAnswers = detectAnswers();
+                    const results = compareAnswers(scannedAnswers);
+                    displayResults(results);
+                    showDebugInfo('تم مسح ' + Object.keys(scannedAnswers).length + ' إجابة بنجاح');
+                } catch (error) {
+                    showDebugInfo('خطأ في المسح: ' + error.message);
+                    alert('حدث خطأ في مسح الإجابات: ' + error.message);
+                }
                 showLoading(false);
-            }, 2000);
+            }, 1000);
+        }
+
+        function testScan() {
+            if (!processedImage) {
+                alert('الرجاء رفع صورة أولاً');
+                return;
+            }
+
+            showDebugInfo('بدء اختبار المسح...');
+            
+            // اختبار كشف سؤال واحد (السؤال الأول)
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            const qNum = 1;
+            const coords = questionCoordinates[qNum];
+            
+            if (!coords) {
+                showDebugInfo('إحداثيات السؤال ' + qNum + ' غير موجودة');
+                return;
+            }
+            
+            let questionX = coords.x * canvas.width;
+            let questionY = coords.y * canvas.height;
+            
+            // ضبط الإحداثيات بناءً على اتجاه الصورة
+            if (currentRotation === 90) {
+                questionX = (1 - coords.y) * canvas.width;
+                questionY = coords.x * canvas.height;
+            } else if (currentRotation === 180) {
+                questionX = (1 - coords.x) * canvas.width;
+                questionY = (1 - coords.y) * canvas.height;
+            } else if (currentRotation === 270) {
+                questionX = coords.y * canvas.width;
+                questionY = (1 - coords.x) * canvas.height;
+            }
+            
+            const qX = Math.floor(questionX);
+            const qY = Math.floor(questionY);
+            
+            let debugText = 'اختبار السؤال 1:\n';
+            debugText += 'الإحداثيات: X=' + qX + ', Y=' + qY + '\n';
+            debugText += 'الحساسية: ' + sensitivity + '%\n\n';
+            
+            // اختبار كل خيار
+            for (const [option, offset] of Object.entries(coords.options)) {
+                let optionX, optionY;
+                
+                if (currentRotation === 90) {
+                    optionX = (1 - (coords.y + offset)) * canvas.width;
+                    optionY = coords.x * canvas.height;
+                } else if (currentRotation === 180) {
+                    optionX = (1 - (coords.x + offset)) * canvas.width;
+                    optionY = (1 - coords.y) * canvas.height;
+                } else if (currentRotation === 270) {
+                    optionX = (coords.y + offset) * canvas.width;
+                    optionY = (1 - coords.x) * canvas.height;
+                } else {
+                    optionX = (coords.x + offset) * canvas.width;
+                    optionY = coords.y * canvas.height;
+                }
+                
+                const optX = Math.floor(optionX);
+                const optY = Math.floor(optionY);
+                
+                // حساب متوسط السطوع
+                let brightness = 0;
+                let sampleCount = 0;
+                const radius = 6;
+                
+                for (let y = optY - radius; y <= optY + radius; y++) {
+                    for (let x = optX - radius; x <= optX + radius; x++) {
+                        if (x >= 0 && x < canvas.width && y >= 0 && y < canvas.height) {
+                            const idx = (y * canvas.width + x) * 4;
+                            const pixelBrightness = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
+                            brightness += pixelBrightness;
+                            sampleCount++;
+                        }
+                    }
+                }
+                
+                const avgBrightness = sampleCount > 0 ? Math.round(brightness / sampleCount) : 0;
+                
+                debugText += option + ': X=' + optX + ', Y=' + optY + ', السطوع=' + avgBrightness + '\n';
+            }
+            
+            showDebugInfo(debugText);
         }
 
         function detectAnswers() {
             const answers = {};
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const data = imageData.data;
+            
+            // حساب عتبة السطوع بناءً على الحساسية
+            const threshold = 255 - (sensitivity * 2.55);
             
             // مسح كل سؤال
             for (const [qNum, coords] of Object.entries(questionCoordinates)) {
@@ -1408,11 +1869,9 @@
                     let brightness = 0;
                     let sampleCount = 0;
                     
-                    // مساحة دائرة قطرها 8 بكسل
-                    const radius = 4;
+                    const radius = 5;
                     for (let y = optY - radius; y <= optY + radius; y++) {
                         for (let x = optX - radius; x <= optX + radius; x++) {
-                            // حساب المسافة من المركز
                             const distance = Math.sqrt(Math.pow(x - optX, 2) + Math.pow(y - optY, 2));
                             if (distance <= radius && x >= 0 && x < canvas.width && y >= 0 && y < canvas.height) {
                                 const idx = (y * canvas.width + x) * 4;
@@ -1426,12 +1885,13 @@
                     const avgBrightness = sampleCount > 0 ? brightness / sampleCount : 255;
                     
                     // الدائرة المملوءة ستكون أغمق (سطوع أقل)
-                    if (avgBrightness < minBrightness && avgBrightness < 120) {
+                    if (avgBrightness < minBrightness && avgBrightness < threshold) {
                         minBrightness = avgBrightness;
                         darkestOption = option;
                     }
                 }
                 
+                // إذا لم يتم اكتشاف أي دائرة، قد تكون فارغة
                 answers[qNum] = darkestOption;
             }
             
@@ -1529,6 +1989,9 @@
             
             // تحديث عرض الإجابات الصحيحة
             updateAnswerKeyDisplay(results);
+            
+            // عرض ملخص
+            alert(`تم مسح الإجابات بنجاح!\n\nالنتيجة: ${results.correct}/20\nالنسبة: ${percentage}%\n\nالصحيحة: ${results.correct}\nالخاطئة: ${results.wrong}\nالفارغة: ${results.empty}`);
         }
 
         function generateAnswerKeyDisplay() {
@@ -1738,12 +2201,21 @@
             }
             
             updateOrientationIndicator();
+            showDebugInfo('تم إعادة تعيين التطبيق');
         }
 
         // ================ دوال مساعدة ================
         function showLoading(show) {
             document.getElementById('loading').classList.toggle('hidden', !show);
             isProcessing = show;
+        }
+
+        function showDebugInfo(message) {
+            const debugDiv = document.getElementById('debugInfo');
+            const contentDiv = document.getElementById('debugContent');
+            
+            debugDiv.classList.remove('hidden');
+            contentDiv.innerHTML = message.replace(/\n/g, '<br>');
         }
 
         // ================ تشغيل التطبيق ================
