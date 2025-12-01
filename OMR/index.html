@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الماسح الذكي لنماذج الإجابة</title>
+    <title>الماسح الذكي لنماذج الإجابة - 20 سؤالاً</title>
     <style>
         * {
             box-sizing: border-box;
@@ -19,7 +19,7 @@
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -30,29 +30,29 @@
         header {
             background: linear-gradient(to right, #2c3e50, #4a6491);
             color: white;
-            padding: 30px;
+            padding: 25px;
             text-align: center;
         }
         
         h1 {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             margin-bottom: 10px;
             font-weight: 700;
         }
         
         .subtitle {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             opacity: 0.9;
         }
         
         .main-content {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            padding: 30px;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 20px;
+            padding: 25px;
         }
         
-        @media (max-width: 900px) {
+        @media (max-width: 1000px) {
             .main-content {
                 grid-template-columns: 1fr;
             }
@@ -61,27 +61,27 @@
         .section {
             background: #f8f9fa;
             border-radius: 15px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .section-title {
             color: #2c3e50;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
             border-bottom: 3px solid #3498db;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
         }
         
         .upload-area {
             border: 3px dashed #3498db;
             border-radius: 10px;
-            padding: 40px 20px;
+            padding: 30px 15px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
             background: #e8f4fc;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         .upload-area:hover {
@@ -93,16 +93,16 @@
             background: linear-gradient(to right, #3498db, #2980b9);
             color: white;
             border: none;
-            padding: 15px 30px;
+            padding: 12px 25px;
             border-radius: 50px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             width: 100%;
-            margin-top: 15px;
+            margin-top: 10px;
             transition: transform 0.3s;
         }
         
@@ -111,22 +111,39 @@
             box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
         }
         
-        .controls {
-            display: flex;
+        .image-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
         
         .control-btn {
-            flex: 1;
-            min-width: 120px;
-            padding: 12px;
+            padding: 10px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .rotate-btn {
+            background: #9b59b6;
+            color: white;
+        }
+        
+        .rotate-btn:hover {
+            background: #8e44ad;
         }
         
         .correct-btn {
@@ -147,6 +164,15 @@
             background: #c0392b;
         }
         
+        .auto-rotate-btn {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .auto-rotate-btn:hover {
+            background: #d68910;
+        }
+        
         .reset-btn {
             background: #95a5a6;
             color: white;
@@ -160,8 +186,9 @@
             border: 2px solid #ddd;
             border-radius: 10px;
             overflow: hidden;
-            margin: 20px 0;
+            margin: 15px 0;
             background: white;
+            position: relative;
         }
         
         canvas {
@@ -169,12 +196,23 @@
             max-width: 100%;
         }
         
+        .orientation-indicator {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        
         .answer-key {
             background: #fffde7;
             border: 2px solid #f1c40f;
             border-radius: 10px;
             padding: 20px;
-            margin-top: 20px;
+            margin-top: 15px;
         }
         
         .key-title {
@@ -188,17 +226,18 @@
         
         .questions-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
         }
         
         .question-item {
             background: white;
             border: 2px solid #ddd;
-            border-radius: 8px;
-            padding: 10px;
+            border-radius: 6px;
+            padding: 8px;
             text-align: center;
             transition: all 0.3s;
+            font-size: 0.9rem;
         }
         
         .question-item.correct {
@@ -211,37 +250,44 @@
             background: #fadbd8;
         }
         
+        .question-item.empty {
+            border-color: #95a5a6;
+            background: #f8f9fa;
+        }
+        
         .question-number {
             font-weight: 700;
             color: #2c3e50;
+            font-size: 0.8rem;
         }
         
         .question-answer {
-            font-size: 1.2rem;
-            margin-top: 5px;
+            font-size: 1rem;
+            margin-top: 3px;
+            font-weight: bold;
         }
         
         .results {
             background: #e8f6f3;
             border-radius: 10px;
             padding: 20px;
-            margin-top: 20px;
+            margin-top: 15px;
         }
         
         .score {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 700;
             color: #27ae60;
             text-align: center;
-            margin: 20px 0;
+            margin: 15px 0;
         }
         
         .progress-bar {
-            height: 20px;
+            height: 15px;
             background: #ecf0f1;
-            border-radius: 10px;
+            border-radius: 8px;
             overflow: hidden;
-            margin: 20px 0;
+            margin: 15px 0;
         }
         
         .progress-fill {
@@ -253,26 +299,26 @@
         .stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+            gap: 10px;
             text-align: center;
         }
         
         .stat-item {
             background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         .stat-value {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: #2c3e50;
         }
         
         .stat-label {
             color: #7f8c8d;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
         
         .hidden {
@@ -281,12 +327,13 @@
         
         .loading {
             display: inline-block;
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #3498db;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin: 10px auto;
         }
         
         @keyframes spin {
@@ -298,18 +345,18 @@
             background: #fff3cd;
             border: 1px solid #ffeaa7;
             border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
-            font-size: 0.9rem;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 0.85rem;
         }
         
         .instructions ol {
             padding-right: 20px;
-            margin-top: 10px;
+            margin-top: 8px;
         }
         
         .instructions li {
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         
         /* Camera Modal Styles */
@@ -319,7 +366,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             z-index: 1000;
             display: flex;
             flex-direction: column;
@@ -328,26 +375,31 @@
         }
         
         .camera-video {
-            width: 90%;
-            max-width: 600px;
+            width: 95%;
+            max-width: 800px;
             border-radius: 10px;
-            transform: scaleX(-1); /* Mirror effect for camera */
+            transform: scaleX(-1);
+            max-height: 70vh;
+            object-fit: contain;
         }
         
         .camera-controls {
             margin-top: 20px;
             display: flex;
-            gap: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         
         .camera-control-btn {
-            padding: 15px 30px;
+            padding: 12px 25px;
             border-radius: 50px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             cursor: pointer;
             border: none;
             color: white;
             transition: transform 0.3s;
+            min-width: 150px;
         }
         
         .camera-control-btn:hover {
@@ -361,13 +413,57 @@
         .close-camera-btn {
             background: #e74c3c;
         }
+        
+        .camera-guide {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            max-width: 300px;
+        }
+        
+        .results-details {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .detail-item {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-right: 4px solid #ddd;
+        }
+        
+        .detail-item.correct {
+            background: #d5f4e6;
+            border-right-color: #2ecc71;
+        }
+        
+        .detail-item.wrong {
+            background: #fadbd8;
+            border-right-color: #e74c3c;
+        }
+        
+        .detail-item.empty {
+            background: #f8f9fa;
+            border-right-color: #95a5a6;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>📱 الماسح الذكي لنماذج الإجابة</h1>
-            <div class="subtitle">تصحيح تلقائي لنماذج الاختبارات باستخدام كاميرا الهاتف</div>
+            <h1>📱 الماسح الذكي لنماذج الإجابة - 20 سؤالاً</h1>
+            <div class="subtitle">تصحيح تلقائي لنماذج الاختبارات | نظام العمودين (10 + 10)</div>
         </header>
         
         <div class="main-content">
@@ -389,19 +485,36 @@
                 <div class="instructions">
                     <strong>تعليمات التصوير:</strong>
                     <ol>
-                        <li>ضع النموذج على سطح مستوٍ</li>
-                        <li>تأكد من إضاءة جيدة</li>
-                        <li>اجعل الصورة موازية للإطار</li>
-                        <li>تجنب الظلال على النموذج</li>
+                        <li>اجعل النموذج يملأ معظم إطار الكاميرا</li>
+                        <li>تأكد من إضاءة جيدة وتجنب الظلال</li>
+                        <li>اجعل الكاميرا موازية للنموذج قدر الإمكان</li>
+                        <li>يمكنك تدوير الصورة بعد التصوير إذا كانت مقلوبة</li>
                     </ol>
                 </div>
                 
+                <div class="image-controls">
+                    <div class="control-group">
+                        <button class="control-btn rotate-btn" id="rotateLeft">
+                            ↶ تدوير يسار
+                        </button>
+                        <button class="control-btn rotate-btn" id="rotateRight">
+                            ↷ تدوير يمين
+                        </button>
+                    </div>
+                    
+                    <div class="control-group">
+                        <button class="control-btn auto-rotate-btn" id="autoRotate">
+                            🔄 تدوير تلقائي
+                        </button>
+                        <button class="control-btn correct-btn" id="correctPerspective">
+                            🔧 تصحيح تشوه
+                        </button>
+                    </div>
+                </div>
+                
                 <div class="controls">
-                    <button class="control-btn correct-btn" id="correctPerspective">
-                        🔧 تصحيح التشوه
-                    </button>
                     <button class="control-btn scan-btn" id="scanAnswers">
-                        🔍 مسح الإجابات
+                        🔍 مسح الإجابات (20 سؤالاً)
                     </button>
                     <button class="control-btn reset-btn" id="resetBtn">
                         ↻ إعادة تعيين
@@ -409,12 +522,15 @@
                 </div>
                 
                 <div class="canvas-container">
+                    <div class="orientation-indicator" id="orientationIndicator">
+                        الاتجاه: طبيعي
+                    </div>
                     <canvas id="mainCanvas"></canvas>
                 </div>
                 
                 <div id="loading" class="hidden">
                     <div class="loading"></div>
-                    <p>جاري معالجة الصورة...</p>
+                    <p style="text-align: center;">جاري معالجة الصورة...</p>
                 </div>
             </div>
             
@@ -425,7 +541,7 @@
                 <div class="answer-key">
                     <div class="key-title">
                         <span>🗝️</span>
-                        نموذج الإجابة الصحيحة
+                        نموذج الإجابة الصحيحة (20 سؤالاً)
                     </div>
                     <div class="questions-grid" id="answerKey">
                         <!-- سيتم ملؤها بالكود -->
@@ -450,15 +566,12 @@
                             <div class="stat-label">إجابات خاطئة</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value" id="totalCount">5</div>
+                            <div class="stat-value" id="totalCount">20</div>
                             <div class="stat-label">إجمالي الأسئلة</div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="section">
-                    <h3 class="section-title">📋 تفاصيل التصحيح</h3>
-                    <div id="resultsDetails">
+                    
+                    <div class="results-details" id="resultsDetails">
                         <!-- سيتم عرض التفاصيل هنا -->
                     </div>
                 </div>
@@ -466,8 +579,14 @@
         </div>
     </div>
 
-    <!-- Camera Modal - Hidden by default -->
+    <!-- Camera Modal -->
     <div id="cameraModal" class="camera-modal hidden">
+        <div class="camera-guide">
+            <strong>توجيهات الكاميرا:</strong><br>
+            • أمسك الهاتف بشكل عمودي<br>
+            • اجعل النموذج داخل الإطار<br>
+            • اضغط التقاط عند التأكد
+        </div>
         <video id="cameraView" class="camera-video" autoplay playsinline></video>
         <div class="camera-controls">
             <button id="captureBtn" class="camera-control-btn capture-btn">
@@ -488,27 +607,51 @@
         let ctx = canvas.getContext('2d');
         let isProcessing = false;
         let cameraStream = null;
+        let currentRotation = 0; // 0, 90, 180, 270 درجة
+        let imageOrientation = 1; // 1: طبيعي، 6: مقلوب 90°، 8: مقلوب 270°
 
-        // نموذج الإجابة الصحيحة (يمكن تعديله)
+        // نموذج الإجابة الصحيحة لـ20 سؤالاً
         const correctAnswers = {
+            // العمود الأول: الأسئلة 1-10
             1: 'ب', 2: 'ج', 3: 'د', 4: 'أ', 5: 'ب',
-            6: 'ج', 7: 'أ', 8: 'د', 9: 'ب', 10: 'أ'
+            6: 'ج', 7: 'أ', 8: 'د', 9: 'ب', 10: 'أ',
+            // العمود الثاني: الأسئلة 11-20
+            11: 'أ', 12: 'ب', 13: 'ج', 14: 'د', 15: 'أ',
+            16: 'ب', 17: 'ج', 18: 'د', 19: 'أ', 20: 'ب'
         };
 
-        // إحداثيات الأسئلة في النموذج (نسبية)
+        // إحداثيات الأسئلة في النموذج (نسبية) - نظام العمودين
         const questionCoordinates = {
-            1: { x: 0.15, y: 0.3, options: { 'أ': 0.2, 'ب': 0.25, 'ج': 0.3, 'د': 0.35 } },
-            2: { x: 0.25, y: 0.3, options: { 'أ': 0.2, 'ب': 0.25, 'ج': 0.3, 'د': 0.35 } },
-            3: { x: 0.35, y: 0.3, options: { 'أ': 0.2, 'ب': 0.25, 'ج': 0.3, 'د': 0.35 } },
-            4: { x: 0.45, y: 0.3, options: { 'أ': 0.2, 'ب': 0.25, 'ج': 0.3, 'د': 0.35 } },
-            5: { x: 0.55, y: 0.3, options: { 'أ': 0.2, 'ب': 0.25, 'ج': 0.3, 'د': 0.35 } },
+            // العمود الأول (الأسئلة 1-10)
+            1: { column: 1, row: 1, x: 0.15, y: 0.28, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } },
+            2: { column: 1, row: 2, x: 0.15, y: 0.33, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } },
+            3: { column: 1, row: 3, x: 0.15, y: 0.38, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } },
+            4: { column: 1, row: 4, x: 0.15, y: 0.43, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } },
+            5: { column: 1, row: 5, x: 0.15, y: 0.48, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } },
+            6: { column: 1, row: 6, x: 0.15, y: 0.53, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } },
+            7: { column: 1, row: 7, x: 0.15, y: 0.58, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } },
+            8: { column: 1, row: 8, x: 0.15, y: 0.63, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } },
+            9: { column: 1, row: 9, x: 0.15, y: 0.68, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } },
+            10: { column: 1, row: 10, x: 0.15, y: 0.73, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } },
+            
+            // العمود الثاني (الأسئلة 11-20)
+            11: { column: 2, row: 1, x: 0.55, y: 0.28, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } },
+            12: { column: 2, row: 2, x: 0.55, y: 0.33, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } },
+            13: { column: 2, row: 3, x: 0.55, y: 0.38, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } },
+            14: { column: 2, row: 4, x: 0.55, y: 0.43, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } },
+            15: { column: 2, row: 5, x: 0.55, y: 0.48, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } },
+            16: { column: 2, row: 6, x: 0.55, y: 0.53, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } },
+            17: { column: 2, row: 7, x: 0.55, y: 0.58, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } },
+            18: { column: 2, row: 8, x: 0.55, y: 0.63, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } },
+            19: { column: 2, row: 9, x: 0.55, y: 0.68, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } },
+            20: { column: 2, row: 10, x: 0.55, y: 0.73, options: { 'أ': 0.00, 'ب': 0.05, 'ج': 0.10, 'د': 0.15 } }
         };
 
         // ================ تهيئة التطبيق ================
         function initApp() {
             setupEventListeners();
             generateAnswerKeyDisplay();
-            updateStats();
+            updateOrientationIndicator();
         }
 
         // ================ إعداد مستمعي الأحداث ================
@@ -547,6 +690,11 @@
             // زر الكاميرا
             document.getElementById('cameraBtn').addEventListener('click', openCamera);
 
+            // أزرار التدوير
+            document.getElementById('rotateLeft').addEventListener('click', () => rotateImage(-90));
+            document.getElementById('rotateRight').addEventListener('click', () => rotateImage(90));
+            document.getElementById('autoRotate').addEventListener('click', autoRotateImage);
+
             // تصحيح المنظور
             document.getElementById('correctPerspective').addEventListener('click', correctPerspective);
 
@@ -568,32 +716,182 @@
             const file = event.target.files[0];
             if (!file) return;
 
+            showLoading(true);
+            
             const reader = new FileReader();
             reader.onload = function(e) {
-                loadImage(e.target.result);
+                // محاولة اكتشاف اتجاه الصورة من بيانات EXIF
+                detectImageOrientation(e.target.result, (orientation) => {
+                    imageOrientation = orientation;
+                    loadImage(e.target.result);
+                });
             };
             reader.readAsDataURL(file);
         }
 
+        function detectImageOrientation(imageData, callback) {
+            const img = new Image();
+            img.onload = function() {
+                // في بيئة حقيقية، نستخدم مكتبة EXIF.js
+                // هنا سنكتشف بسيطاً بناءً على الأبعاد
+                if (img.width > img.height) {
+                    // صورة أفقية، ربما تحتاج تدوير
+                    callback(6); // 90 درجة
+                } else {
+                    callback(1); // طبيعي
+                }
+            };
+            img.src = imageData;
+        }
+
         function loadImage(src) {
-            showLoading(true);
-            
             const img = new Image();
             img.onload = function() {
                 originalImage = img;
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
+                
+                // ضبط أبعاد الكانفاس بناءً على التدوير الحالي
+                if (currentRotation === 90 || currentRotation === 270) {
+                    canvas.width = img.height;
+                    canvas.height = img.width;
+                } else {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                }
+                
+                drawImageWithRotation();
                 processedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 showLoading(false);
             };
             img.src = src;
         }
 
+        // ================ تدوير الصورة ================
+        function rotateImage(degrees) {
+            if (!originalImage) {
+                alert('الرجاء رفع صورة أولاً');
+                return;
+            }
+
+            currentRotation = (currentRotation + degrees + 360) % 360;
+            
+            // تغيير أبعاد الكانفاس إذا لزم الأمر
+            if (degrees === 90 || degrees === -90 || degrees === 270 || degrees === -270) {
+                const temp = canvas.width;
+                canvas.width = canvas.height;
+                canvas.height = temp;
+            }
+            
+            drawImageWithRotation();
+            updateOrientationIndicator();
+        }
+
+        function autoRotateImage() {
+            if (!originalImage) {
+                alert('الرجاء رفع صورة أولاً');
+                return;
+            }
+
+            showLoading(true);
+            
+            // تحليل الصورة لاكتشاف إذا كانت مقلوبة
+            setTimeout(() => {
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const brightness = analyzeImageBrightness(imageData);
+                
+                // إذا كانت الصورة مظلمة في الجزء العلوي، قد تكون مقلوبة
+                if (brightness.top < brightness.bottom * 0.8) {
+                    rotateImage(180);
+                    alert('تم تدوير الصورة 180 درجة تلقائياً');
+                } else if (brightness.left < brightness.right * 0.8) {
+                    rotateImage(90);
+                    alert('تم تدوير الصورة 90 درجة تلقائياً');
+                } else {
+                    alert('الصورة تبدو في الاتجاه الصحيح');
+                }
+                
+                showLoading(false);
+            }, 1000);
+        }
+
+        function analyzeImageBrightness(imageData) {
+            const data = imageData.data;
+            const width = imageData.width;
+            const height = imageData.height;
+            
+            let topBrightness = 0, bottomBrightness = 0;
+            let leftBrightness = 0, rightBrightness = 0;
+            let topCount = 0, bottomCount = 0, leftCount = 0, rightCount = 0;
+            
+            // تحليل الربع العلوي والسفلي
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const idx = (y * width + x) * 4;
+                    const brightness = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
+                    
+                    if (y < height / 2) {
+                        topBrightness += brightness;
+                        topCount++;
+                    } else {
+                        bottomBrightness += brightness;
+                        bottomCount++;
+                    }
+                    
+                    if (x < width / 2) {
+                        leftBrightness += brightness;
+                        leftCount++;
+                    } else {
+                        rightBrightness += brightness;
+                        rightCount++;
+                    }
+                }
+            }
+            
+            return {
+                top: topBrightness / topCount,
+                bottom: bottomBrightness / bottomCount,
+                left: leftBrightness / leftCount,
+                right: rightBrightness / rightCount
+            };
+        }
+
+        function drawImageWithRotation() {
+            if (!originalImage) return;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            
+            // نقل نقطة الأصل إلى مركز الكانفاس
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(currentRotation * Math.PI / 180);
+            
+            // رسم الصورة في المركز
+            ctx.drawImage(
+                originalImage, 
+                -originalImage.width / 2, 
+                -originalImage.height / 2
+            );
+            
+            ctx.restore();
+            processedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        }
+
+        function updateOrientationIndicator() {
+            const indicator = document.getElementById('orientationIndicator');
+            let text = 'الاتجاه: ';
+            
+            switch(currentRotation) {
+                case 0: text += 'طبيعي'; break;
+                case 90: text += '90° يمين'; break;
+                case 180: text += 'مقلوب'; break;
+                case 270: text += '90° يسار'; break;
+            }
+            
+            indicator.textContent = text;
+        }
+
         // ================ الكاميرا ================
         async function openCamera() {
             try {
-                // طلب إذن استخدام الكاميرا
                 cameraStream = await navigator.mediaDevices.getUserMedia({
                     video: { 
                         facingMode: 'environment',
@@ -606,7 +904,6 @@
                 const cameraView = document.getElementById('cameraView');
                 cameraView.srcObject = cameraStream;
                 
-                // إظهار نافذة الكاميرا
                 document.getElementById('cameraModal').classList.remove('hidden');
                 
             } catch (error) {
@@ -620,23 +917,22 @@
             const cameraCanvas = document.getElementById('cameraCanvas');
             const context = cameraCanvas.getContext('2d');
             
-            // ضبط أبعاد الكانفاس لتتناسب مع الفيديو
             cameraCanvas.width = cameraView.videoWidth;
             cameraCanvas.height = cameraView.videoHeight;
             
-            // رسم إطار الفيديو الحالي على الكانفاس
             context.drawImage(cameraView, 0, 0, cameraCanvas.width, cameraCanvas.height);
             
-            // الحصول على بيانات الصورة
             const imageData = cameraCanvas.toDataURL('image/png');
-            
-            // إغلاق الكاميرا وتحميل الصورة
             closeCamera();
-            loadImage(imageData);
+            
+            showLoading(true);
+            setTimeout(() => {
+                loadImage(imageData);
+                showLoading(false);
+            }, 500);
         }
 
         function closeCamera() {
-            // إيقاف بث الكاميرا
             if (cameraStream) {
                 cameraStream.getTracks().forEach(track => {
                     track.stop();
@@ -644,10 +940,7 @@
                 cameraStream = null;
             }
             
-            // إخفاء نافذة الكاميرا
             document.getElementById('cameraModal').classList.add('hidden');
-            
-            // مسح مصدر الفيديو
             const cameraView = document.getElementById('cameraView');
             cameraView.srcObject = null;
         }
@@ -661,32 +954,16 @@
 
             showLoading(true);
             
-            // محاكاة معالجة الصورة
             setTimeout(() => {
-                const tempCanvas = document.createElement('canvas');
-                const tempCtx = tempCanvas.getContext('2d');
-                
-                tempCanvas.width = canvas.width;
-                tempCanvas.height = canvas.height;
-                
-                // تحويل الصورة إلى تدرجات الرمادي
+                // زيادة التباين
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imageData.data;
                 
-                for (let i = 0; i < data.length; i += 4) {
-                    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                    data[i] = avg;
-                    data[i + 1] = avg;
-                    data[i + 2] = avg;
-                }
-                
-                // زيادة التباين
                 enhanceContrast(data);
+                ctx.putImageData(imageData, 0, 0);
                 
-                tempCtx.putImageData(imageData, 0, 0);
-                
-                // تصحيح المنظور
-                applyPerspectiveCorrection(tempCtx);
+                // تصحيح طفيف للمنظور
+                applyPerspectiveCorrection();
                 
                 showLoading(false);
                 alert('تم تصحيح تشوه الصورة بنجاح!');
@@ -694,7 +971,7 @@
         }
 
         function enhanceContrast(data) {
-            const contrast = 1.5;
+            const contrast = 1.3;
             const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
             
             for (let i = 0; i < data.length; i += 4) {
@@ -704,18 +981,19 @@
             }
         }
 
-        function applyPerspectiveCorrection(context) {
+        function applyPerspectiveCorrection() {
             // محاكاة تصحيح المنظور
-            canvas.width = originalImage.width * 0.9;
-            canvas.height = originalImage.height * 0.9;
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
             
-            ctx.save();
-            ctx.translate(canvas.width / 2, canvas.height / 2);
-            ctx.rotate(0.02); // تصحيح طفيف للدوران
-            ctx.scale(0.95, 0.95); // تصحيح طفيف للقياس
-            ctx.translate(-canvas.width / 2, -canvas.height / 2);
-            ctx.drawImage(originalImage, 50, 50, canvas.width - 100, canvas.height - 100);
-            ctx.restore();
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            
+            tempCtx.drawImage(canvas, 0, 0);
+            
+            // تطبيق تصحيح طفيف
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(tempCanvas, 10, 10, canvas.width - 20, canvas.height - 20);
             
             processedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
         }
@@ -744,22 +1022,56 @@
             
             // مسح كل سؤال
             for (const [qNum, coords] of Object.entries(questionCoordinates)) {
-                const questionX = Math.floor(coords.x * canvas.width);
-                const questionY = Math.floor(coords.y * canvas.height);
+                let questionX, questionY;
+                
+                // ضبط الإحداثيات بناءً على اتجاه الصورة
+                if (currentRotation === 90) {
+                    questionX = (1 - coords.y) * canvas.width;
+                    questionY = coords.x * canvas.height;
+                } else if (currentRotation === 180) {
+                    questionX = (1 - coords.x) * canvas.width;
+                    questionY = (1 - coords.y) * canvas.height;
+                } else if (currentRotation === 270) {
+                    questionX = coords.y * canvas.width;
+                    questionY = (1 - coords.x) * canvas.height;
+                } else {
+                    questionX = coords.x * canvas.width;
+                    questionY = coords.y * canvas.height;
+                }
+                
+                const qX = Math.floor(questionX);
+                const qY = Math.floor(questionY);
                 
                 let darkestOption = null;
                 let minBrightness = 255;
                 
                 // فحص كل خيار
                 for (const [option, offset] of Object.entries(coords.options)) {
-                    const optionX = Math.floor((coords.x + offset) * canvas.width);
+                    let optionX, optionY;
+                    
+                    if (currentRotation === 90) {
+                        optionX = (1 - (coords.y + offset)) * canvas.width;
+                        optionY = coords.x * canvas.height;
+                    } else if (currentRotation === 180) {
+                        optionX = (1 - (coords.x + offset)) * canvas.width;
+                        optionY = (1 - coords.y) * canvas.height;
+                    } else if (currentRotation === 270) {
+                        optionX = (coords.y + offset) * canvas.width;
+                        optionY = (1 - coords.x) * canvas.height;
+                    } else {
+                        optionX = (coords.x + offset) * canvas.width;
+                        optionY = coords.y * canvas.height;
+                    }
+                    
+                    const optX = Math.floor(optionX);
+                    const optY = Math.floor(optionY);
                     
                     // حساب متوسط السطوع في منطقة الخيار
                     let brightness = 0;
                     let sampleCount = 0;
                     
-                    for (let y = questionY - 5; y <= questionY + 5; y++) {
-                        for (let x = optionX - 5; x <= optionX + 5; x++) {
+                    for (let y = optY - 4; y <= optY + 4; y++) {
+                        for (let x = optX - 4; x <= optX + 4; x++) {
                             if (x >= 0 && x < canvas.width && y >= 0 && y < canvas.height) {
                                 const idx = (y * canvas.width + x) * 4;
                                 const pixelBrightness = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
@@ -772,7 +1084,7 @@
                     const avgBrightness = brightness / sampleCount;
                     
                     // الخيار الأكثر قتامة (مملوء) هو المحتمل
-                    if (avgBrightness < minBrightness && avgBrightness < 150) {
+                    if (avgBrightness < minBrightness && avgBrightness < 100) {
                         minBrightness = avgBrightness;
                         darkestOption = option;
                     }
@@ -792,7 +1104,7 @@
                 details: []
             };
             
-            for (let i = 1; i <= Object.keys(correctAnswers).length; i++) {
+            for (let i = 1; i <= 20; i++) {
                 const scanned = scannedAnswers[i];
                 const correct = correctAnswers[i];
                 
@@ -802,7 +1114,8 @@
                         question: i,
                         scanned: 'فارغ',
                         correct: correct,
-                        isCorrect: false
+                        isCorrect: false,
+                        isEmpty: true
                     });
                 } else if (scanned === correct) {
                     results.correct++;
@@ -810,7 +1123,8 @@
                         question: i,
                         scanned: scanned,
                         correct: correct,
-                        isCorrect: true
+                        isCorrect: true,
+                        isEmpty: false
                     });
                 } else {
                     results.wrong++;
@@ -818,7 +1132,8 @@
                         question: i,
                         scanned: scanned,
                         correct: correct,
-                        isCorrect: false
+                        isCorrect: false,
+                        isEmpty: false
                     });
                 }
             }
@@ -831,22 +1146,42 @@
             // تحديث الإحصائيات
             document.getElementById('correctCount').textContent = results.correct;
             document.getElementById('wrongCount').textContent = results.wrong;
-            document.getElementById('totalCount').textContent = Object.keys(correctAnswers).length;
+            document.getElementById('totalCount').textContent = 20;
             
             // حساب النسبة المئوية
-            const total = Object.keys(correctAnswers).length;
-            const percentage = Math.round((results.correct / total) * 100);
+            const percentage = Math.round((results.correct / 20) * 100);
             document.getElementById('finalScore').textContent = `${percentage}%`;
             document.getElementById('progressFill').style.width = `${percentage}%`;
             
             // عرض التفاصيل
-            const detailsHtml = results.details.map(detail => `
-                <div style="padding: 10px; margin: 5px 0; background: ${detail.isCorrect ? '#d5f4e6' : '#fadbd8'}; border-radius: 5px; border-right: 4px solid ${detail.isCorrect ? '#2ecc71' : '#e74c3c'};">
-                    السؤال ${detail.question}: 
-                    <strong>${detail.scanned}</strong> 
-                    ${!detail.isCorrect ? `(الصحيح: ${detail.correct})` : '✓'}
-                </div>
-            `).join('');
+            const detailsHtml = results.details.map(detail => {
+                let className = 'detail-item';
+                if (detail.isCorrect) {
+                    className += ' correct';
+                } else if (detail.isEmpty) {
+                    className += ' empty';
+                } else {
+                    className += ' wrong';
+                }
+                
+                let statusText = '';
+                if (detail.isCorrect) {
+                    statusText = '✓ صحيح';
+                } else if (detail.isEmpty) {
+                    statusText = '○ فارغ';
+                } else {
+                    statusText = '✗ خطأ';
+                }
+                
+                return `
+                    <div class="${className}">
+                        السؤال ${detail.question}: 
+                        <strong>${detail.scanned}</strong> 
+                        <span style="float: left;">${statusText}</span>
+                        ${!detail.isCorrect && !detail.isEmpty ? `(الصحيح: ${detail.correct})` : ''}
+                    </div>
+                `;
+            }).join('');
             
             document.getElementById('resultsDetails').innerHTML = detailsHtml;
             
@@ -858,11 +1193,13 @@
             const container = document.getElementById('answerKey');
             container.innerHTML = '';
             
-            for (const [qNum, answer] of Object.entries(correctAnswers)) {
+            for (let i = 1; i <= 20; i++) {
+                const answer = correctAnswers[i];
                 const questionDiv = document.createElement('div');
                 questionDiv.className = 'question-item';
+                questionDiv.id = `question-${i}`;
                 questionDiv.innerHTML = `
-                    <div class="question-number">${qNum}</div>
+                    <div class="question-number">${i}</div>
                     <div class="question-answer">${answer}</div>
                 `;
                 container.appendChild(questionDiv);
@@ -870,33 +1207,31 @@
         }
 
         function updateAnswerKeyDisplay(results) {
-            const questions = document.querySelectorAll('.question-item');
-            
-            questions.forEach((question, index) => {
-                const qNum = index + 1;
-                const result = results.details.find(d => d.question == qNum);
+            for (let i = 1; i <= 20; i++) {
+                const questionDiv = document.getElementById(`question-${i}`);
+                const result = results.details.find(d => d.question == i);
                 
                 if (result) {
+                    questionDiv.classList.remove('correct', 'wrong', 'empty');
+                    
                     if (result.isCorrect) {
-                        question.classList.add('correct');
-                        question.classList.remove('wrong');
+                        questionDiv.classList.add('correct');
+                    } else if (result.isEmpty) {
+                        questionDiv.classList.add('empty');
                     } else {
-                        question.classList.add('wrong');
-                        question.classList.remove('correct');
+                        questionDiv.classList.add('wrong');
                     }
                 }
-            });
-        }
-
-        function updateStats() {
-            // يمكن تحديث إحصائيات إضافية هنا
+            }
         }
 
         // ================ إعادة التعيين ================
         function resetApp() {
             originalImage = null;
             processedImage = null;
+            currentRotation = 0;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
             document.getElementById('finalScore').textContent = '0%';
             document.getElementById('progressFill').style.width = '0%';
             document.getElementById('resultsDetails').innerHTML = '';
@@ -904,10 +1239,14 @@
             document.getElementById('wrongCount').textContent = '0';
             
             // إعادة تعيين عرض الإجابات الصحيحة
-            const questions = document.querySelectorAll('.question-item');
-            questions.forEach(q => {
-                q.classList.remove('correct', 'wrong');
-            });
+            for (let i = 1; i <= 20; i++) {
+                const questionDiv = document.getElementById(`question-${i}`);
+                if (questionDiv) {
+                    questionDiv.classList.remove('correct', 'wrong', 'empty');
+                }
+            }
+            
+            updateOrientationIndicator();
         }
 
         // ================ دوال مساعدة ================
