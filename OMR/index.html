@@ -457,6 +457,39 @@
             background: #f8f9fa;
             border-right-color: #95a5a6;
         }
+        
+        .answer-order-diagram {
+            background: #f0f7ff;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .order-example {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        .bubble {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .bubble.a { background: #e74c3c; }
+        .bubble.b { background: #3498db; }
+        .bubble.c { background: #2ecc71; }
+        .bubble.d { background: #f39c12; }
     </style>
 </head>
 <body>
@@ -490,6 +523,17 @@
                         <li>اجعل الكاميرا موازية للنموذج قدر الإمكان</li>
                         <li>يمكنك تدوير الصورة بعد التصوير إذا كانت مقلوبة</li>
                     </ol>
+                </div>
+                
+                <div class="answer-order-diagram">
+                    <strong>ترتيب دوائر الإجابة:</strong>
+                    <div class="order-example">
+                        <div class="bubble a">أ</div>
+                        <div class="bubble b">ب</div>
+                        <div class="bubble c">ج</div>
+                        <div class="bubble d">د</div>
+                        <span>← من اليمين إلى اليسار</span>
+                    </div>
                 </div>
                 
                 <div class="image-controls">
@@ -608,43 +652,43 @@
         let isProcessing = false;
         let cameraStream = null;
         let currentRotation = 0; // 0, 90, 180, 270 درجة
-        let imageOrientation = 1; // 1: طبيعي، 6: مقلوب 90°، 8: مقلوب 270°
 
-        // نموذج الإجابة الصحيحة لـ20 سؤالاً
+        // نموذج الإجابة الصحيحة لـ20 سؤالاً (يمكن تعديله)
         const correctAnswers = {
             // العمود الأول: الأسئلة 1-10
-            1: 'ب', 2: 'ج', 3: 'د', 4: 'أ', 5: 'ب',
-            6: 'ج', 7: 'أ', 8: 'د', 9: 'ب', 10: 'أ',
+            1: 'أ', 2: 'ب', 3: 'ج', 4: 'د', 5: 'أ',
+            6: 'ب', 7: 'ج', 8: 'د', 9: 'أ', 10: 'ب',
             // العمود الثاني: الأسئلة 11-20
-            11: 'أ', 12: 'ب', 13: 'ج', 14: 'د', 15: 'أ',
-            16: 'ب', 17: 'ج', 18: 'د', 19: 'أ', 20: 'ب'
+            11: 'ج', 12: 'د', 13: 'أ', 14: 'ب', 15: 'ج',
+            16: 'د', 17: 'أ', 18: 'ب', 19: 'ج', 20: 'د'
         };
 
         // إحداثيات الأسئلة في النموذج (نسبية) - نظام العمودين
+        // التصحيح: الدائرة الأولى من اليمين هي "أ" ثم "ب" ثم "ج" ثم "د"
         const questionCoordinates = {
-            // العمود الأول (الأسئلة 1-10)
-            1: { column: 1, row: 1, x: 0.15, y: 0.28, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } },
-            2: { column: 1, row: 2, x: 0.15, y: 0.33, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } },
-            3: { column: 1, row: 3, x: 0.15, y: 0.38, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } },
-            4: { column: 1, row: 4, x: 0.15, y: 0.43, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } },
-            5: { column: 1, row: 5, x: 0.15, y: 0.48, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } },
-            6: { column: 1, row: 6, x: 0.15, y: 0.53, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } },
-            7: { column: 1, row: 7, x: 0.15, y: 0.58, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } },
-            8: { column: 1, row: 8, x: 0.15, y: 0.63, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } },
-            9: { column: 1, row: 9, x: 0.15, y: 0.68, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } },
-            10: { column: 1, row: 10, x: 0.15, y: 0.73, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } },
+            // العمود الأول (الأسئلة 1-10) - دوائر من اليمين: أ، ب، ج، د
+            1: { column: 1, row: 1, x: 0.15, y: 0.25, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
+            2: { column: 1, row: 2, x: 0.15, y: 0.30, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
+            3: { column: 1, row: 3, x: 0.15, y: 0.35, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
+            4: { column: 1, row: 4, x: 0.15, y: 0.40, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
+            5: { column: 1, row: 5, x: 0.15, y: 0.45, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
+            6: { column: 1, row: 6, x: 0.15, y: 0.50, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
+            7: { column: 1, row: 7, x: 0.15, y: 0.55, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
+            8: { column: 1, row: 8, x: 0.15, y: 0.60, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
+            9: { column: 1, row: 9, x: 0.15, y: 0.65, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
+            10: { column: 1, row: 10, x: 0.15, y: 0.70, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
             
-            // العمود الثاني (الأسئلة 11-20)
-            11: { column: 2, row: 1, x: 0.55, y: 0.28, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } },
-            12: { column: 2, row: 2, x: 0.55, y: 0.33, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } },
-            13: { column: 2, row: 3, x: 0.55, y: 0.38, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } },
-            14: { column: 2, row: 4, x: 0.55, y: 0.43, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } },
-            15: { column: 2, row: 5, x: 0.55, y: 0.48, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } },
-            16: { column: 2, row: 6, x: 0.55, y: 0.53, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } },
-            17: { column: 2, row: 7, x: 0.55, y: 0.58, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } },
-            18: { column: 2, row: 8, x: 0.55, y: 0.63, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } },
-            19: { column: 2, row: 9, x: 0.55, y: 0.68, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } },
-            20: { column: 2, row: 10, x: 0.55, y: 0.73, options: { 'د': 0.00, 'ج': 0.05, 'ب': 0.10, 'أ': 0.15 } }
+            // العمود الثاني (الأسئلة 11-20) - دوائر من اليمين: أ، ب، ج، د
+            11: { column: 2, row: 1, x: 0.55, y: 0.25, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
+            12: { column: 2, row: 2, x: 0.55, y: 0.30, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
+            13: { column: 2, row: 3, x: 0.55, y: 0.35, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
+            14: { column: 2, row: 4, x: 0.55, y: 0.40, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
+            15: { column: 2, row: 5, x: 0.55, y: 0.45, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
+            16: { column: 2, row: 6, x: 0.55, y: 0.50, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
+            17: { column: 2, row: 7, x: 0.55, y: 0.55, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
+            18: { column: 2, row: 8, x: 0.55, y: 0.60, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
+            19: { column: 2, row: 9, x: 0.55, y: 0.65, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
+            20: { column: 2, row: 10, x: 0.55, y: 0.70, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } }
         };
 
         // ================ تهيئة التطبيق ================
@@ -720,28 +764,9 @@
             
             const reader = new FileReader();
             reader.onload = function(e) {
-                // محاولة اكتشاف اتجاه الصورة من بيانات EXIF
-                detectImageOrientation(e.target.result, (orientation) => {
-                    imageOrientation = orientation;
-                    loadImage(e.target.result);
-                });
+                loadImage(e.target.result);
             };
             reader.readAsDataURL(file);
-        }
-
-        function detectImageOrientation(imageData, callback) {
-            const img = new Image();
-            img.onload = function() {
-                // في بيئة حقيقية، نستخدم مكتبة EXIF.js
-                // هنا سنكتشف بسيطاً بناءً على الأبعاد
-                if (img.width > img.height) {
-                    // صورة أفقية، ربما تحتاج تدوير
-                    callback(6); // 90 درجة
-                } else {
-                    callback(1); // طبيعي
-                }
-            };
-            img.src = imageData;
         }
 
         function loadImage(src) {
@@ -1045,7 +1070,7 @@
                 let darkestOption = null;
                 let minBrightness = 255;
                 
-                // فحص كل خيار
+                // فحص كل خيار (من اليمين: أ، ب، ج، د)
                 for (const [option, offset] of Object.entries(coords.options)) {
                     let optionX, optionY;
                     
@@ -1059,6 +1084,7 @@
                         optionX = (coords.y + offset) * canvas.width;
                         optionY = (1 - coords.x) * canvas.height;
                     } else {
+                        // الاتجاه الطبيعي - الدوائر من اليمين إلى اليسار
                         optionX = (coords.x + offset) * canvas.width;
                         optionY = coords.y * canvas.height;
                     }
@@ -1066,13 +1092,17 @@
                     const optX = Math.floor(optionX);
                     const optY = Math.floor(optionY);
                     
-                    // حساب متوسط السطوع في منطقة الخيار
+                    // حساب متوسط السطوع في منطقة الدائرة
                     let brightness = 0;
                     let sampleCount = 0;
                     
-                    for (let y = optY - 4; y <= optY + 4; y++) {
-                        for (let x = optX - 4; x <= optX + 4; x++) {
-                            if (x >= 0 && x < canvas.width && y >= 0 && y < canvas.height) {
+                    // مساحة دائرة قطرها 8 بكسل
+                    const radius = 4;
+                    for (let y = optY - radius; y <= optY + radius; y++) {
+                        for (let x = optX - radius; x <= optX + radius; x++) {
+                            // حساب المسافة من المركز
+                            const distance = Math.sqrt(Math.pow(x - optX, 2) + Math.pow(y - optY, 2));
+                            if (distance <= radius && x >= 0 && x < canvas.width && y >= 0 && y < canvas.height) {
                                 const idx = (y * canvas.width + x) * 4;
                                 const pixelBrightness = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
                                 brightness += pixelBrightness;
@@ -1081,10 +1111,10 @@
                         }
                     }
                     
-                    const avgBrightness = brightness / sampleCount;
+                    const avgBrightness = sampleCount > 0 ? brightness / sampleCount : 255;
                     
-                    // الخيار الأكثر قتامة (مملوء) هو المحتمل
-                    if (avgBrightness < minBrightness && avgBrightness < 100) {
+                    // الدائرة المملوءة ستكون أغمق (سطوع أقل)
+                    if (avgBrightness < minBrightness && avgBrightness < 120) {
                         minBrightness = avgBrightness;
                         darkestOption = option;
                     }
