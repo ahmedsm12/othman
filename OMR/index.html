@@ -89,12 +89,6 @@
             border-color: #2980b9;
         }
         
-        .upload-area i {
-            font-size: 3rem;
-            color: #3498db;
-            margin-bottom: 15px;
-        }
-        
         .camera-btn {
             background: linear-gradient(to right, #3498db, #2980b9);
             color: white;
@@ -282,7 +276,7 @@
         }
         
         .hidden {
-            display: none;
+            display: none !important;
         }
         
         .loading {
@@ -316,6 +310,56 @@
         
         .instructions li {
             margin-bottom: 8px;
+        }
+        
+        /* Camera Modal Styles */
+        .camera-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .camera-video {
+            width: 90%;
+            max-width: 600px;
+            border-radius: 10px;
+            transform: scaleX(-1); /* Mirror effect for camera */
+        }
+        
+        .camera-controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .camera-control-btn {
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border: none;
+            color: white;
+            transition: transform 0.3s;
+        }
+        
+        .camera-control-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .capture-btn {
+            background: #2ecc71;
+        }
+        
+        .close-camera-btn {
+            background: #e74c3c;
         }
     </style>
 </head>
@@ -422,7 +466,19 @@
         </div>
     </div>
 
-
+    <!-- Camera Modal - Hidden by default -->
+    <div id="cameraModal" class="camera-modal hidden">
+        <video id="cameraView" class="camera-video" autoplay playsinline></video>
+        <div class="camera-controls">
+            <button id="captureBtn" class="camera-control-btn capture-btn">
+                📷 التقاط صورة
+            </button>
+            <button id="closeCamera" class="camera-control-btn close-camera-btn">
+                ✕ إغلاق الكاميرا
+            </button>
+        </div>
+        <canvas id="cameraCanvas" class="hidden"></canvas>
+    </div>
 
     <script>
         // ================ تهيئة المتغيرات ================
@@ -431,6 +487,7 @@
         let canvas = document.getElementById('mainCanvas');
         let ctx = canvas.getContext('2d');
         let isProcessing = false;
+        let cameraStream = null;
 
         // نموذج الإجابة الصحيحة (يمكن تعديله)
         const correctAnswers = {
@@ -440,13 +497,11 @@
 
         // إحداثيات الأسئلة في النموذج (نسبية)
         const questionCoordinates = {
-            // الصف الأول: الأسئلة 1-5
             1: { x: 0.15, y: 0.3, options: { 'أ': 0.2, 'ب': 0.25, 'ج': 0.3, 'د': 0.35 } },
             2: { x: 0.25, y: 0.3, options: { 'أ': 0.2, 'ب': 0.25, 'ج': 0.3, 'د': 0.35 } },
             3: { x: 0.35, y: 0.3, options: { 'أ': 0.2, 'ب': 0.25, 'ج': 0.3, 'د': 0.35 } },
             4: { x: 0.45, y: 0.3, options: { 'أ': 0.2, 'ب': 0.25, 'ج': 0.3, 'د': 0.35 } },
             5: { x: 0.55, y: 0.3, options: { 'أ': 0.2, 'ب': 0.25, 'ج': 0.3, 'د': 0.35 } },
-            // يمكن إضافة المزيد...
         };
 
         // ================ تهيئة التطبيق ================
@@ -482,7 +537,10 @@
                 uploadArea.style.backgroundColor = '#e8f4fc';
                 
                 if (e.dataTransfer.files.length) {
-                    handleImageUpload({ target: { files: e.dataTransfer.files } });
+                    const file = e.dataTransfer.files[0];
+                    if (file.type.startsWith('image/')) {
+                        handleImageUpload({ target: { files: [file] } });
+                    }
                 }
             });
 
@@ -497,6 +555,12 @@
 
             // إعادة التعيين
             document.getElementById('resetBtn').addEventListener('click', resetApp);
+            
+            // زر التقاط الصورة من الكاميرا
+            document.getElementById('captureBtn').addEventListener('click', captureImage);
+            
+            // زر إغلاق الكاميرا
+            document.getElementById('closeCamera').addEventListener('click', closeCamera);
         }
 
         // ================ معالجة رفع الصورة ================
@@ -527,24 +591,27 @@
         }
 
         // ================ الكاميرا ================
-        let cameraStream = null;
-
         async function openCamera() {
             try {
+                // طلب إذن استخدام الكاميرا
                 cameraStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'environment' }
+                    video: { 
+                        facingMode: 'environment',
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    },
+                    audio: false
                 });
                 
                 const cameraView = document.getElementById('cameraView');
                 cameraView.srcObject = cameraStream;
                 
+                // إظهار نافذة الكاميرا
                 document.getElementById('cameraModal').classList.remove('hidden');
                 
-                // مستمعي أحداث الكاميرا
-                document.getElementById('captureBtn').onclick = captureImage;
-                document.getElementById('closeCamera').onclick = closeCamera;
             } catch (error) {
                 alert('حدث خطأ في تشغيل الكاميرا: ' + error.message);
+                console.error('Camera error:', error);
             }
         }
 
@@ -553,21 +620,36 @@
             const cameraCanvas = document.getElementById('cameraCanvas');
             const context = cameraCanvas.getContext('2d');
             
+            // ضبط أبعاد الكانفاس لتتناسب مع الفيديو
             cameraCanvas.width = cameraView.videoWidth;
             cameraCanvas.height = cameraView.videoHeight;
-            context.drawImage(cameraView, 0, 0);
             
+            // رسم إطار الفيديو الحالي على الكانفاس
+            context.drawImage(cameraView, 0, 0, cameraCanvas.width, cameraCanvas.height);
+            
+            // الحصول على بيانات الصورة
             const imageData = cameraCanvas.toDataURL('image/png');
+            
+            // إغلاق الكاميرا وتحميل الصورة
             closeCamera();
             loadImage(imageData);
         }
 
         function closeCamera() {
+            // إيقاف بث الكاميرا
             if (cameraStream) {
-                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream.getTracks().forEach(track => {
+                    track.stop();
+                });
                 cameraStream = null;
             }
+            
+            // إخفاء نافذة الكاميرا
             document.getElementById('cameraModal').classList.add('hidden');
+            
+            // مسح مصدر الفيديو
+            const cameraView = document.getElementById('cameraView');
+            cameraView.srcObject = null;
         }
 
         // ================ تصحيح المنظور ================
@@ -840,6 +922,13 @@
         // منع الإجراءات الافتراضية للسحب والإفلات
         document.addEventListener('dragover', (e) => e.preventDefault());
         document.addEventListener('drop', (e) => e.preventDefault());
+        
+        // إغلاق الكاميرا عند الضغط على زر الهروب
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !document.getElementById('cameraModal').classList.contains('hidden')) {
+                closeCamera();
+            }
+        });
     </script>
 </body>
 </html>
