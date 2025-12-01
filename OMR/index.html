@@ -71,6 +71,24 @@
             padding-bottom: 8px;
             border-bottom: 3px solid #3498db;
             font-size: 1.3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .edit-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+        
+        .edit-btn:hover {
+            background: #2980b9;
         }
         
         .upload-area {
@@ -238,6 +256,12 @@
             text-align: center;
             transition: all 0.3s;
             font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        .question-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
         }
         
         .question-item.correct {
@@ -255,6 +279,18 @@
             background: #f8f9fa;
         }
         
+        .question-item.editing {
+            border-color: #3498db;
+            background: #ebf5fb;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
         .question-number {
             font-weight: 700;
             color: #2c3e50;
@@ -262,9 +298,10 @@
         }
         
         .question-answer {
-            font-size: 1rem;
+            font-size: 1.2rem;
             margin-top: 3px;
             font-weight: bold;
+            min-height: 24px;
         }
         
         .results {
@@ -490,6 +527,217 @@
         .bubble.b { background: #3498db; }
         .bubble.c { background: #2ecc71; }
         .bubble.d { background: #f39c12; }
+        
+        /* Edit Modal Styles */
+        .edit-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .edit-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .edit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .edit-title {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .close-edit-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .edit-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+        }
+        
+        .edit-question {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid #ddd;
+            transition: all 0.3s;
+        }
+        
+        .edit-question:hover {
+            border-color: #3498db;
+            background: #e8f4fc;
+        }
+        
+        .edit-question-number {
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+        
+        .answer-options {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .answer-option {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #ddd;
+            transition: all 0.3s;
+        }
+        
+        .answer-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .answer-option.selected {
+            border-width: 3px;
+            transform: scale(1.1);
+        }
+        
+        .answer-option.a { background: #ffebee; border-color: #e74c3c; color: #e74c3c; }
+        .answer-option.b { background: #e8f4fc; border-color: #3498db; color: #3498db; }
+        .answer-option.c { background: #e8f6f3; border-color: #2ecc71; color: #2ecc71; }
+        .answer-option.d { background: #fef9e7; border-color: #f39c12; color: #f39c12; }
+        
+        .answer-option.a.selected { background: #e74c3c; color: white; }
+        .answer-option.b.selected { background: #3498db; color: white; }
+        .answer-option.c.selected { background: #2ecc71; color: white; }
+        .answer-option.d.selected { background: #f39c12; color: white; }
+        
+        .edit-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+        
+        .save-btn {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .save-btn:hover {
+            background: #27ae60;
+        }
+        
+        .cancel-btn {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .cancel-btn:hover {
+            background: #7f8c8d;
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .quick-action-btn {
+            background: #9b59b6;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .quick-action-btn:hover {
+            background: #8e44ad;
+        }
+        
+        .bulk-edit {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px dashed #3498db;
+        }
+        
+        .bulk-edit-title {
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .bulk-edit-textarea {
+            width: 100%;
+            height: 100px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: monospace;
+            margin-bottom: 15px;
+            resize: vertical;
+        }
+        
+        .bulk-edit-example {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            text-align: center;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -580,12 +828,20 @@
             
             <!-- القسم الأيمن: النتائج والإجابات -->
             <div class="section">
-                <h2 class="section-title">📊 النتائج</h2>
+                <h2 class="section-title">
+                    <span>📊 النتائج</span>
+                    <button class="edit-btn" id="editAnswersBtn">
+                        ✏️ تعديل الإجابات النموذجية
+                    </button>
+                </h2>
                 
                 <div class="answer-key">
                     <div class="key-title">
                         <span>🗝️</span>
                         نموذج الإجابة الصحيحة (20 سؤالاً)
+                        <small style="color: #7f8c8d; font-weight: normal; font-size: 0.8rem;">
+                            (انقر على أي إجابة لتعديلها)
+                        </small>
                     </div>
                     <div class="questions-grid" id="answerKey">
                         <!-- سيتم ملؤها بالكود -->
@@ -643,6 +899,45 @@
         <canvas id="cameraCanvas" class="hidden"></canvas>
     </div>
 
+    <!-- Edit Answers Modal -->
+    <div id="editModal" class="edit-modal hidden">
+        <div class="edit-container">
+            <div class="edit-header">
+                <div class="edit-title">✏️ تعديل الإجابات النموذجية</div>
+                <button class="close-edit-btn" id="closeEditBtn">✕ إغلاق</button>
+            </div>
+            
+            <div class="quick-actions">
+                <button class="quick-action-btn" id="setAllA">تعيين الكل إلى "أ"</button>
+                <button class="quick-action-btn" id="setAllB">تعيين الكل إلى "ب"</button>
+                <button class="quick-action-btn" id="setAllC">تعيين الكل إلى "ج"</button>
+                <button class="quick-action-btn" id="setAllD">تعيين الكل إلى "د"</button>
+                <button class="quick-action-btn" id="clearAll">مسح الكل</button>
+            </div>
+            
+            <div class="edit-grid" id="editGrid">
+                <!-- سيتم ملؤها بالكود -->
+            </div>
+            
+            <div class="bulk-edit">
+                <div class="bulk-edit-title">التعديل السريع</div>
+                <textarea class="bulk-edit-textarea" id="bulkEditTextarea" 
+                          placeholder="أدخل الإجابات هنا (سطر واحد لكل سؤال، مثال: أ&#10;ب&#10;ج&#10;د&#10;أ&#10;ب&#10;...)">
+                </textarea>
+                <button class="save-btn" id="applyBulkEdit">تطبيق التعديل السريع</button>
+                <div class="bulk-edit-example">
+                    مثال: أدخل 20 سطراً، كل سطر يحتوي على حرف واحد (أ، ب، ج، د)<br>
+                    يمكنك نسخ: أ ب ج د أ ب ج د أ ب ج د أ ب ج د أ ب ج د
+                </div>
+            </div>
+            
+            <div class="edit-controls">
+                <button class="save-btn" id="saveEditBtn">💾 حفظ التعديلات</button>
+                <button class="cancel-btn" id="cancelEditBtn">❌ إلغاء</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ================ تهيئة المتغيرات ================
         let originalImage = null;
@@ -652,9 +947,11 @@
         let isProcessing = false;
         let cameraStream = null;
         let currentRotation = 0; // 0, 90, 180, 270 درجة
+        let isEditing = false;
+        let editingQuestion = null;
 
-        // نموذج الإجابة الصحيحة لـ20 سؤالاً (يمكن تعديله)
-        const correctAnswers = {
+        // نموذج الإجابة الصحيحة لـ20 سؤالاً (سيتم تحميله من localStorage إذا موجود)
+        let correctAnswers = JSON.parse(localStorage.getItem('correctAnswers')) || {
             // العمود الأول: الأسئلة 1-10
             1: 'أ', 2: 'ب', 3: 'ج', 4: 'د', 5: 'أ',
             6: 'ب', 7: 'ج', 8: 'د', 9: 'أ', 10: 'ب',
@@ -664,7 +961,6 @@
         };
 
         // إحداثيات الأسئلة في النموذج (نسبية) - نظام العمودين
-        // التصحيح: الدائرة الأولى من اليمين هي "أ" ثم "ب" ثم "ج" ثم "د"
         const questionCoordinates = {
             // العمود الأول (الأسئلة 1-10) - دوائر من اليمين: أ، ب، ج، د
             1: { column: 1, row: 1, x: 0.15, y: 0.25, options: { 'أ': 0.00, 'ب': 0.03, 'ج': 0.06, 'د': 0.09 } },
@@ -753,6 +1049,22 @@
             
             // زر إغلاق الكاميرا
             document.getElementById('closeCamera').addEventListener('click', closeCamera);
+            
+            // زر تعديل الإجابات
+            document.getElementById('editAnswersBtn').addEventListener('click', openEditModal);
+            
+            // أزرار التعديل
+            document.getElementById('closeEditBtn').addEventListener('click', closeEditModal);
+            document.getElementById('saveEditBtn').addEventListener('click', saveEdits);
+            document.getElementById('cancelEditBtn').addEventListener('click', closeEditModal);
+            
+            // أزرار التعديل السريع
+            document.getElementById('setAllA').addEventListener('click', () => setAllAnswers('أ'));
+            document.getElementById('setAllB').addEventListener('click', () => setAllAnswers('ب'));
+            document.getElementById('setAllC').addEventListener('click', () => setAllAnswers('ج'));
+            document.getElementById('setAllD').addEventListener('click', () => setAllAnswers('د'));
+            document.getElementById('clearAll').addEventListener('click', clearAllAnswers);
+            document.getElementById('applyBulkEdit').addEventListener('click', applyBulkEdit);
         }
 
         // ================ معالجة رفع الصورة ================
@@ -1228,10 +1540,17 @@
                 const questionDiv = document.createElement('div');
                 questionDiv.className = 'question-item';
                 questionDiv.id = `question-${i}`;
+                questionDiv.dataset.question = i;
                 questionDiv.innerHTML = `
                     <div class="question-number">${i}</div>
-                    <div class="question-answer">${answer}</div>
+                    <div class="question-answer">${answer || '?'}</div>
                 `;
+                
+                // إضافة حدث النقر لتعديل الإجابة مباشرة
+                questionDiv.addEventListener('click', () => {
+                    editQuestionDirectly(i);
+                });
+                
                 container.appendChild(questionDiv);
             }
         }
@@ -1239,20 +1558,162 @@
         function updateAnswerKeyDisplay(results) {
             for (let i = 1; i <= 20; i++) {
                 const questionDiv = document.getElementById(`question-${i}`);
-                const result = results.details.find(d => d.question == i);
+                if (!questionDiv) continue;
                 
-                if (result) {
-                    questionDiv.classList.remove('correct', 'wrong', 'empty');
+                const answer = correctAnswers[i];
+                questionDiv.querySelector('.question-answer').textContent = answer || '?';
+                
+                if (results && results.details) {
+                    const result = results.details.find(d => d.question == i);
                     
-                    if (result.isCorrect) {
-                        questionDiv.classList.add('correct');
-                    } else if (result.isEmpty) {
-                        questionDiv.classList.add('empty');
-                    } else {
-                        questionDiv.classList.add('wrong');
+                    questionDiv.classList.remove('correct', 'wrong', 'empty', 'editing');
+                    
+                    if (result) {
+                        if (result.isCorrect) {
+                            questionDiv.classList.add('correct');
+                        } else if (result.isEmpty) {
+                            questionDiv.classList.add('empty');
+                        } else {
+                            questionDiv.classList.add('wrong');
+                        }
                     }
                 }
             }
+        }
+
+        // ================ تعديل الإجابات ================
+        function openEditModal() {
+            document.getElementById('editModal').classList.remove('hidden');
+            populateEditGrid();
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+            isEditing = false;
+            editingQuestion = null;
+        }
+
+        function populateEditGrid() {
+            const container = document.getElementById('editGrid');
+            container.innerHTML = '';
+            
+            // إضافة نص الحقل السريع الحالي
+            const answersText = Array.from({length: 20}, (_, i) => correctAnswers[i+1] || '').join('\n');
+            document.getElementById('bulkEditTextarea').value = answersText;
+            
+            for (let i = 1; i <= 20; i++) {
+                const answer = correctAnswers[i] || '';
+                const editDiv = document.createElement('div');
+                editDiv.className = 'edit-question';
+                editDiv.dataset.question = i;
+                
+                const optionsHtml = ['أ', 'ب', 'ج', 'د'].map(option => `
+                    <div class="answer-option ${option.toLowerCase()} ${answer === option ? 'selected' : ''}" 
+                         data-option="${option}">
+                        ${option}
+                    </div>
+                `).join('');
+                
+                editDiv.innerHTML = `
+                    <div class="edit-question-number">سؤال ${i}</div>
+                    <div class="answer-options">
+                        ${optionsHtml}
+                    </div>
+                `;
+                
+                // إضافة أحداث النقر للخيارات
+                editDiv.querySelectorAll('.answer-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        const questionNum = parseInt(editDiv.dataset.question);
+                        const selectedOption = e.target.dataset.option;
+                        selectAnswer(questionNum, selectedOption);
+                    });
+                });
+                
+                container.appendChild(editDiv);
+            }
+        }
+
+        function selectAnswer(questionNum, answer) {
+            correctAnswers[questionNum] = answer;
+            
+            // تحديث الواجهة في نافذة التعديل
+            const editDiv = document.querySelector(`.edit-question[data-question="${questionNum}"]`);
+            editDiv.querySelectorAll('.answer-option').forEach(option => {
+                option.classList.remove('selected');
+                if (option.dataset.option === answer) {
+                    option.classList.add('selected');
+                }
+            });
+            
+            // تحديث الواجهة الرئيسية
+            const mainDiv = document.getElementById(`question-${questionNum}`);
+            if (mainDiv) {
+                mainDiv.querySelector('.question-answer').textContent = answer;
+            }
+        }
+
+        function saveEdits() {
+            // حفظ في localStorage
+            localStorage.setItem('correctAnswers', JSON.stringify(correctAnswers));
+            
+            // تحديث العرض
+            updateAnswerKeyDisplay();
+            
+            alert('تم حفظ الإجابات النموذجية بنجاح!');
+            closeEditModal();
+        }
+
+        function setAllAnswers(answer) {
+            for (let i = 1; i <= 20; i++) {
+                selectAnswer(i, answer);
+            }
+        }
+
+        function clearAllAnswers() {
+            for (let i = 1; i <= 20; i++) {
+                selectAnswer(i, '');
+            }
+        }
+
+        function applyBulkEdit() {
+            const textarea = document.getElementById('bulkEditTextarea');
+            const lines = textarea.value.trim().split('\n');
+            
+            for (let i = 0; i < 20 && i < lines.length; i++) {
+                const answer = lines[i].trim().toUpperCase();
+                if (['أ', 'ب', 'ج', 'د', 'A', 'B', 'C', 'D'].includes(answer)) {
+                    // تحويل الإنجليزية إلى عربية إذا لزم الأمر
+                    const arabicAnswer = answer === 'A' ? 'أ' :
+                                       answer === 'B' ? 'ب' :
+                                       answer === 'C' ? 'ج' :
+                                       answer === 'D' ? 'د' : answer;
+                    selectAnswer(i + 1, arabicAnswer);
+                }
+            }
+            
+            alert('تم تطبيق التعديل السريع بنجاح!');
+        }
+
+        function editQuestionDirectly(questionNum) {
+            // جعل السؤال يظهر وكأنه في وضع التعديل
+            const questionDiv = document.getElementById(`question-${questionNum}`);
+            questionDiv.classList.add('editing');
+            
+            // فتح نافذة التعديل
+            openEditModal();
+            
+            // تمرير لتمرير العرض إلى السؤال المحدد
+            setTimeout(() => {
+                const editDiv = document.querySelector(`.edit-question[data-question="${questionNum}"]`);
+                if (editDiv) {
+                    editDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    editDiv.style.animation = 'pulse 1.5s infinite';
+                    setTimeout(() => {
+                        editDiv.style.animation = '';
+                    }, 3000);
+                }
+            }, 300);
         }
 
         // ================ إعادة التعيين ================
@@ -1272,7 +1733,7 @@
             for (let i = 1; i <= 20; i++) {
                 const questionDiv = document.getElementById(`question-${i}`);
                 if (questionDiv) {
-                    questionDiv.classList.remove('correct', 'wrong', 'empty');
+                    questionDiv.classList.remove('correct', 'wrong', 'empty', 'editing');
                 }
             }
             
@@ -1294,8 +1755,13 @@
         
         // إغلاق الكاميرا عند الضغط على زر الهروب
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !document.getElementById('cameraModal').classList.contains('hidden')) {
-                closeCamera();
+            if (e.key === 'Escape') {
+                if (!document.getElementById('cameraModal').classList.contains('hidden')) {
+                    closeCamera();
+                }
+                if (!document.getElementById('editModal').classList.contains('hidden')) {
+                    closeEditModal();
+                }
             }
         });
     </script>
