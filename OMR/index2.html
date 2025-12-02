@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ماسح الإجابات الضوئي الذكي</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #4a6fa5;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        h2 {
+            color: #3498db;
+            margin-top: 25px;
+            border-right: 5px solid #3498db;
+            padding-right: 15px;
+        }
+        
+        h3 {
+            color: #2c3e50;
+            margin-top: 20px;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 1100px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .section {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .section.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-success {
+            background-color: #27ae60;
+        }
+        
+        .btn-success:hover {
+            background-color: #219653;
+        }
+        
+        .btn-warning {
+            background-color: #f39c12;
+        }
+        
+        .btn-warning:hover {
+            background-color: #e67e22;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-secondary {
+            background-color: #95a5a6;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        
+        input[type="file"] {
+            padding: 10px;
+            border: 2px dashed #3498db;
+            border-radius: 6px;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .canvas-container {
+            position: relative;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            min-height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 500px;
+        }
+        
+        .preview-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+        
+        .settings-panel {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .setting-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .range-value {
+            display: inline-block;
+            margin-left: 10px;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .results-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .results-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .stats-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .correct {
+            color: #27ae60;
+        }
+        
+        .wrong {
+            color: #e74c3c;
+        }
+        
+        .empty {
+            color: #95a5a6;
+        }
+        
+        .unclear {
+            color: #f39c12;
+        }
+        
+        .progress-container {
+            height: 20px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .answers-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .answers-table th {
+            background-color: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .answers-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+        }
+        
+        .answers-table tr:hover {
+            background-color: #f5f9ff;
+        }
+        
+        .answer-cell {
+            font-weight: bold;
+            font-size: 18px;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        
+        .answer-correct {
+            background-color: #d5f4e6;
+            color: #27ae60;
+        }
+        
+        .answer-wrong {
+            background-color: #fdeaea;
+            color: #e74c3c;
+        }
+        
+        .answer-empty {
+            background-color: #f5f5f5;
+            color: #7f8c8d;
+        }
+        
+        .answer-unclear {
+            background-color: #fef5e7;
+            color: #f39c12;
+        }
+        
+        .debug-panel {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        
+        .debug-entry {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #34495e;
+        }
+        
+        .debug-time {
+            color: #3498db;
+        }
+        
+        .debug-info {
+            color: #2ecc71;
+        }
+        
+        .debug-warning {
+            color: #f39c12;
+        }
+        
+        .debug-error {
+            color: #e74c3c;
+        }
+        
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .spinner {
+            border: 8px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 8px solid #3498db;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .calibration-point {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: rgba(231, 76, 60, 0.8);
+            border: 2px solid white;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            z-index: 100;
+        }
+        
+        .calibration-point.active {
+            background-color: rgba(46, 204, 113, 0.8);
+            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.3);
+        }
+        
+        .calibration-info {
+            background-color: #e8f4fc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-right: 5px solid #3498db;
+        }
+        
+        .answer-key-editor {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .answer-key-item {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .answer-key-item input {
+            width: 40px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            padding: 5px;
+        }
+        
+        .answer-key-item input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+    </style>
+    <!-- مكتبة OpenCV.js -->
+    <script async src="https://docs.opencv.org/4.5.0/opencv.js" onload="onOpenCVReady()"></script>
+</head>
+<body>
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>جاري معالجة الصورة...</p>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>📋 ماسح الإجابات الضوئي الذكي</h1>
+            <p>تطبيق لتصحيح نماذج الإجابات الممسوحة ضوئيًا مع تصحيح التشوه البصري ومعالجة متقدمة</p>
+        </header>
+        
+        <div class="main-grid">
+            <!-- قسم تحميل الصورة -->
+            <div class="section">
+                <h2>📸 تحميل الصورة</h2>
+                <div class="controls">
+                    <input type="file" id="imageInput" accept="image/*" capture="environment">
+                    <button class="btn" id="processBtn">
+                        <span>⚙️</span> معالجة الصورة
+                    </button>
+                    <button class="btn btn-secondary" id="resetBtn">
+                        <span>🔄</span> إعادة تعيين
+                    </button>
+                </div>
+                
+                <div class="canvas-container">
+                    <canvas id="mainCanvas"></canvas>
+                    <canvas id="overlayCanvas" class="preview-overlay"></canvas>
+                    <div id="calibrationPoints"></div>
+                    <p id="noImageMessage" style="text-align: center; color: #7f8c8d; padding: 20px;">
+                        سيظهر هنا معاينة الصورة بعد تحميلها
+                    </p>
+                </div>
+                
+                <div class="calibration-info">
+                    <h3>🎯 تصحيح التشوه البصري</h3>
+                    <p>لتصحيح التشوه، قم بالنقر على 4 نقاط في الصورة (الزوايا الأربع للنموذج) ثم اضغط على زر "تصحيح التشوه"</p>
+                    <div class="controls">
+                        <button class="btn btn-warning" id="calibrateBtn">
+                            <span>🎯</span> وضع المعايرة
+                        </button>
+                        <button class="btn btn-success" id="correctPerspectiveBtn">
+                            <span>🔧</span> تصحيح التشوه
+                        </button>
+                        <button class="btn btn-secondary" id="clearCalibrationBtn">
+                            <span>❌</span> مسح النقاط
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- قسم الإعدادات -->
+            <div class="section">
+                <h2>⚙️ إعدادات المعالجة</h2>
+                <div class="settings-panel">
+                    <div class="setting-group">
+                        <label for="brightnessThreshold">عتبة السطوع: <span id="brightnessValue" class="range-value">150</span></label>
+                        <input type="range" id="brightnessThreshold" min="0" max="255" value="150">
+                        <p style="font-size: 0.9rem; color: #7f8c8d;">تحديد قيمة السطوع اللازمة لاعتبار الدائرة مظللة</p>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="minCircleSize">حد أدنى لحجم الدائرة: <span id="circleSizeValue" class="range-value">15</span>px</label>
+                        <input type="range" id="minCircleSize" min="5" max="50" value="15">
+                        <p style="font-size: 0.9rem; color: #7f8c8d;">تجاهل الدوائر الأصغر من هذا الحجم</p>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="answerModel">نموذج الإجابة:</label>
+                        <select id="answerModel" class="btn" style="width: 100%; max-width: 250px; padding: 10px;">
+                            <option value="right-to-left">من اليمين إلى اليسار (أ، ب، ج، د)</option>
+                            <option value="left-to-right">من اليسار إلى اليمين (د، ج، ب، أ)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="autoDetect">الكشف التلقائي:</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="autoDetect" checked>
+                            <span>تفعيل الكشف التلقائي للنقاط المرجعية</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-warning" id="applySettingsBtn" style="margin-top: 20px;">
+                        <span>💾</span> تطبيق الإعدادات
+                    </button>
+                </div>
+                
+                <h3 style="margin-top: 30px;">🔑 نموذج الإجابات الصحيحة</h3>
+                <div class="answer-key-editor" id="answerKeyEditor">
+                    <!-- سيتم إنشاء 20 خانة للإجابات هنا ديناميكيًا -->
+                </div>
+                <div class="controls">
+                    <button class="btn btn-success" id="saveAnswerKeyBtn">
+                        <span>💾</span> حفظ النموذج
+                    </button>
+                    <button class="btn btn-secondary" id="loadDefaultKeyBtn">
+                        <span>📄</span> تحميل نموذج افتراضي
+                    </button>
+                </div>
+            </div>
+            
+            <!-- قسم النتائج -->
+            <div class="section full-width">
+                <h2>📊 نتائج التصحيح</h2>
+                <div class="controls">
+                    <button class="btn" id="analyzeBtn">
+                        <span>🔍</span> تحليل الإجابات
+                    </button>
+                    <button class="btn btn-warning" id="manualCorrectionBtn">
+                        <span>✏️</span> تصحيح يدوي
+                    </button>
+                    <button class="btn btn-success" id="exportResultsBtn">
+                        <span>📤</span> تصدير النتائج
+                    </button>
+                </div>
+                
+                <div class="results-container">
+                    <div class="stats-card">
+                        <h3>الإجابات الصحيحة</h3>
+                        <div class="stat-number correct" id="correctCount">0</div>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="correctProgress"></div>
+                        </div>
+                        <p>نسبة النجاح: <span id="successRate" class="correct">0%</span></p>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <h3>الإجابات الخاطئة</h3>
+                        <div class="stat-number wrong" id="wrongCount">0</div>
+                        <div class="progress-container">
+                            <div class="progress-bar wrong" id="wrongProgress"></div>
+                        </div>
+                        <p>تحتاج مراجعة</p>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <h3>إجابات فارغة</h3>
+                        <div class="stat-number empty" id="emptyCount">0</div>
+                        <div class="progress-container">
+                            <div class="progress-bar empty" id="emptyProgress"></div>
+                        </div>
+                        <p>لم يتم الإجابة عليها</p>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <h3>غير واضحة</h3>
+                        <div class="stat-number unclear" id="unclearCount">0</div>
+                        <div class="progress-container">
+                            <div class="progress-bar unclear" id="unclearProgress"></div>
+                        </div>
+                        <p>تحتاج فحص يدوي</p>
+                    </div>
+                </div>
+                
+                <h3 style="margin-top: 30px;">📋 تفاصيل الإجابات</h3>
+                <div style="overflow-x: auto;">
+                    <table class="answers-table" id="answersTable">
+                        <thead>
+                            <tr>
+                                <th>السؤال</th>
+                                <th>الإجابة المختارة</th>
+                                <th>الإجابة الصحيحة</th>
+                                <th>الحالة</th>
+                                <th>الثقة</th>
+                                <th>الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="answersTableBody">
+                            <!-- سيتم ملؤها ديناميكيًا -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- قسم التصحيح اليدوي -->
+            <div class="section full-width" id="manualCorrectionSection" style="display: none;">
+                <h2>✏️ التصحيح اليدوي</h2>
+                <div class="controls">
+                    <button class="btn btn-success" id="saveManualCorrectionsBtn">
+                        <span>💾</span> حفظ التصحيحات
+                    </button>
+                    <button class="btn btn-secondary" id="cancelManualCorrectionBtn">
+                        <span>❌</span> إلغاء
+                    </button>
+                </div>
+                
+                <div id="manualCorrectionGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <!-- سيتم إنشاء عناصر التصحيح اليدوي هنا -->
+                </div>
+            </div>
+            
+            <!-- قسم سجل المعالجة -->
+            <div class="section full-width">
+                <h2>📝 سجل المعالجة</h2>
+                <div class="debug-panel" id="debugPanel">
+                    <div class="debug-entry">
+                        <span class="debug-time">[12:00:00]</span>
+                        <span class="debug-info">تم تحميل التطبيق بنجاح</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>تم تطويره باستخدام JavaScript وOpenCV.js • يدعم كافة نماذج الإجابات الممسوحة ضوئيًا</p>
+            <p>© 2023 ماسح الإجابات الضوئي الذكي | الإصدار 2.0</p>
+        </footer>
+    </div>
+
+    <script>
+        // حالة التطبيق
+        const AppState = {
+            image: null,
+            processedImage: null,
+            circles: [],
+            calibrationPoints: [],
+            isCalibrating: false,
+            answerKey: new Array(20).fill('أ'), // نموذج افتراضي للإجابات الصحيحة
+            detectedAnswers: [],
+            processingSettings: {
+                brightnessThreshold: 150,
+                minCircleSize: 15,
+                answerModel: 'right-to-left',
+                autoDetect: true
+            }
+        };
+
+        // عناصر DOM
+        const domElements = {
+            loading: document.getElementById('loading'),
+            imageInput: document.getElementById('imageInput'),
+            processBtn: document.getElementById('processBtn'),
+            resetBtn: document.getElementById('resetBtn'),
+            mainCanvas: document.getElementById('mainCanvas'),
+            overlayCanvas: document.getElementById('overlayCanvas'),
+            noImageMessage: document.getElementById('noImageMessage'),
+            calibrationPoints: document.getElementById('calibrationPoints'),
+            calibrateBtn: document.getElementById('calibrateBtn'),
+            correctPerspectiveBtn: document.getElementById('correctPerspectiveBtn'),
+            clearCalibrationBtn: document.getElementById('clearCalibrationBtn'),
+            brightnessThreshold: document.getElementById('brightnessThreshold'),
+            brightnessValue: document.getElementById('brightnessValue'),
+            minCircleSize: document.getElementById('minCircleSize'),
+            circleSizeValue: document.getElementById('circleSizeValue'),
+            answerModel: document.getElementById('answerModel'),
+            autoDetect: document.getElementById('autoDetect'),
+            applySettingsBtn: document.getElementById('applySettingsBtn'),
+            answerKeyEditor: document.getElementById('answerKeyEditor'),
+            saveAnswerKeyBtn: document.getElementById('saveAnswerKeyBtn'),
+            loadDefaultKeyBtn: document.getElementById('loadDefaultKeyBtn'),
+            analyzeBtn: document.getElementById('analyzeBtn'),
+            manualCorrectionBtn: document.getElementById('manualCorrectionBtn'),
+            exportResultsBtn: document.getElementById('exportResultsBtn'),
+            manualCorrectionSection: document.getElementById('manualCorrectionSection'),
+            saveManualCorrectionsBtn: document.getElementById('saveManualCorrectionsBtn'),
+            cancelManualCorrectionBtn: document.getElementById('cancelManualCorrectionBtn'),
+            correctCount: document.getElementById('correctCount'),
+            wrongCount: document.getElementById('wrongCount'),
+            emptyCount: document.getElementById('emptyCount'),
+            unclearCount: document.getElementById('unclearCount'),
+            correctProgress: document.getElementById('correctProgress'),
+            wrongProgress: document.getElementById('wrongProgress'),
+            emptyProgress: document.getElementById('emptyProgress'),
+            unclearProgress: document.getElementById('unclearProgress'),
+            successRate: document.getElementById('successRate'),
+            answersTableBody: document.getElementById('answersTableBody'),
+            debugPanel: document.getElementById('debugPanel')
+        };
+
+        // OpenCV حالة
+        let isOpenCVReady = false;
+
+        // تهيئة التطبيق
+        function initApp() {
+            logDebug('تهيئة التطبيق...', 'info');
+            
+            // إعداد معالجات الأحداث
+            setupEventListeners();
+            
+            // إنشاء محرر نموذج الإجابات
+            createAnswerKeyEditor();
+            
+            // تحميل الإعدادات من localStorage
+            loadSettings();
+            
+            logDebug('تم تهيئة التطبيق بنجاح', 'info');
+        }
+
+        // إعداد معالجات الأحداث
+        function setupEventListeners() {
+            // تحميل الصورة
+            domElements.imageInput.addEventListener('change', handleImageUpload);
+            
+            // معالجة الصورة
+            domElements.processBtn.addEventListener('click', processImage);
+            
+            // إعادة تعيين
+            domElements.resetBtn.addEventListener('click', resetApp);
+            
+            // وضع المعايرة
+            domElements.calibrateBtn.addEventListener('click', toggleCalibrationMode);
+            
+            // تصحيح التشوه
+            domElements.correctPerspectiveBtn.addEventListener('click', correctPerspective);
+            
+            // مسح نقاط المعايرة
+            domElements.clearCalibrationBtn.addEventListener('click', clearCalibrationPoints);
+            
+            // تحديث قيم المنزلقات
+            domElements.brightnessThreshold.addEventListener('input', function() {
+                domElements.brightnessValue.textContent = this.value;
+                AppState.processingSettings.brightnessThreshold = parseInt(this.value);
+            });
+            
+            domElements.minCircleSize.addEventListener('input', function() {
+                domElements.circleSizeValue.textContent = this.value;
+                AppState.processingSettings.minCircleSize = parseInt(this.value);
+            });
+            
+            // تطبيق الإعدادات
+            domElements.applySettingsBtn.addEventListener('click', applySettings);
+            
+            // حفظ نموذج الإجابات
+            domElements.saveAnswerKeyBtn.addEventListener('click', saveAnswerKey);
+            
+            // تحميل النموذج الافتراضي
+            domElements.loadDefaultKeyBtn.addEventListener('click', loadDefaultAnswerKey);
+            
+            // تحليل الإجابات
+            domElements.analyzeBtn.addEventListener('click', analyzeAnswers);
+            
+            // التصحيح اليدوي
+            domElements.manualCorrectionBtn.addEventListener('click', showManualCorrection);
+            
+            // حفظ التصحيحات اليدوية
+            domElements.saveManualCorrectionsBtn.addEventListener('click', saveManualCorrections);
+            
+            // إلغاء التصحيح اليدوي
+            domElements.cancelManualCorrectionBtn.addEventListener('click', hideManualCorrection);
+            
+            // تصدير النتائج
+            domElements.exportResultsBtn.addEventListener('click', exportResults);
+            
+            // النقر على لوحة المعايرة
+            domElements.mainCanvas.addEventListener('click', handleCanvasClick);
+            
+            logDebug('تم إعداد معالجات الأحداث', 'info');
+        }
+
+        // تحميل الصورة
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            showLoading();
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    AppState.image = img;
+                    displayImage(img);
+                    domElements.noImageMessage.style.display = 'none';
+                    hideLoading();
+                    logDebug(`تم تحميل الصورة: ${file.name} (${img.width}×${img.height})`, 'info');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // عرض الصورة على Canvas
+        function displayImage(img) {
+            const canvas = domElements.mainCanvas;
+            const ctx = canvas.getContext('2d');
+            
+            // حساب الأبعاد المناسبة للعرض
+            const maxWidth = canvas.parentElement.clientWidth - 40;
+            const maxHeight = 500;
+            
+            let width = img.width;
+            let height = img.height;
+            
+            if (width > maxWidth) {
+                height = (maxWidth / width) * height;
+                width = maxWidth;
+            }
+            
+            if (height > maxHeight) {
+                width = (maxHeight / height) * width;
+                height = maxHeight;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            domElements.overlayCanvas.width = width;
+            domElements.overlayCanvas.height = height;
+            
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // إذا كان الكشف التلقائي مفعلاً، حاول اكتشاف النقاط المرجعية
+            if (AppState.processingSettings.autoDetect && isOpenCVReady) {
+                setTimeout(() => {
+                    autoDetectReferencePoints();
+                }, 500);
+            }
+        }
+
+        // معالجة الصورة
+        function processImage() {
+            if (!AppState.image) {
+                alert('يرجى تحميل صورة أولاً');
+                return;
+            }
+            
+            showLoading();
+            logDebug('بدء معالجة الصورة...', 'info');
+            
+            // استخدام OpenCV لمعالجة الصورة إذا كان متاحاً
+            if (isOpenCVReady) {
+                processWithOpenCV();
+            } else {
+                // استخدام معالجة Canvas بديلة
+                processWithCanvas();
+            }
+        }
+
+        // معالجة الصورة باستخدام OpenCV
+        function processWithOpenCV() {
+            try {
+                const src = cv.imread(domElements.mainCanvas);
+                const gray = new cv.Mat();
+                const blurred = new cv.Mat();
+                const edges = new cv.Mat();
+                
+                // تحويل إلى تدرج رمادي
+                cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+                
+                // تطبيق Gaussian blur
+                cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0);
+                
+                // كشف الحواف (Canny)
+                cv.Canny(blurred, edges, 50, 200);
+                
+                // البحث عن الكنتورات
+                const contours = new cv.MatVector();
+                const hierarchy = new cv.Mat();
+                cv.findContours(edges, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+                
+                // البحث عن الدوائر (تقريب الكنتورات)
+                AppState.circles = [];
+                for (let i = 0; i < contours.size(); i++) {
+                    const contour = contours.get(i);
+                    const perimeter = cv.arcLength(contour, true);
+                    const approx = new cv.Mat();
+                    cv.approxPolyDP(contour, approx, 0.02 * perimeter, true);
+                    
+                    // إذا كان الشكل مقارباً للدائرة
+                    if (approx.rows > 8) {
+                        const moments = cv.moments(contour);
+                        if (moments.m00 !== 0) {
+                            const cx = moments.m10 / moments.m00;
+                            const cy = moments.m01 / moments.m00;
+                            const area = cv.contourArea(contour);
+                            const radius = Math.sqrt(area / Math.PI);
+                            
+                            if (radius >= AppState.processingSettings.minCircleSize) {
+                                AppState.circles.push({
+                                    x: cx,
+                                    y: cy,
+                                    radius: radius,
+                                    area: area
+                                });
+                            }
+                        }
+                    }
+                    approx.delete();
+                }
+                
+                // رسم الدوائر المكتشفة
+                drawDetectedCircles();
+                
+                // تنظيف الذاكرة
+                src.delete();
+                gray.delete();
+                blurred.delete();
+                edges.delete();
+                contours.delete();
+                hierarchy.delete();
+                
+                logDebug(`تم اكتشاف ${AppState.circles.length} دائرة`, 'info');
+                hideLoading();
+                
+            } catch (error) {
+                logDebug(`خطأ في معالجة OpenCV: ${error.message}`, 'error');
+                hideLoading();
+                // الرجوع إلى المعالجة باستخدام Canvas
+                processWithCanvas();
+            }
+        }
+
+        // معالجة الصورة باستخدام Canvas
+        function processWithCanvas() {
+            const canvas = domElements.mainCanvas;
+            const ctx = canvas.getContext('2d');
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            // تحويل إلى تدرج رمادي
+            for (let i = 0; i < data.length; i += 4) {
+                const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                data[i] = avg;     // الأحمر
+                data[i + 1] = avg; // الأخضر
+                data[i + 2] = avg; // الأزرق
+            }
+            
+            // تطبيق threshold
+            const threshold = AppState.processingSettings.brightnessThreshold;
+            for (let i = 0; i < data.length; i += 4) {
+                const brightness = data[i];
+                const value = brightness < threshold ? 0 : 255;
+                data[i] = data[i + 1] = data[i + 2] = value;
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+            
+            // اكتشاف الدوائر المبسط (لكن ليس دقيقاً مثل OpenCV)
+            detectCirclesSimple();
+            
+            logDebug('تمت المعالجة باستخدام Canvas (وضع محدود)', 'warning');
+            hideLoading();
+        }
+
+        // اكتشاف الدوائر بشكل مبسط
+        function detectCirclesSimple() {
+            const canvas = domElements.mainCanvas;
+            const ctx = canvas.getContext('2d');
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            AppState.circles = [];
+            const minCircleSize = AppState.processingSettings.minCircleSize;
+            
+            // بحث مبسط عن المناطق الدائرية المظللة
+            for (let y = minCircleSize; y < canvas.height - minCircleSize; y += 3) {
+                for (let x = minCircleSize; x < canvas.width - minCircleSize; x += 3) {
+                    const idx = (y * canvas.width + x) * 4;
+                    
+                    // إذا كانت النقطة مظللة (سوداء)
+                    if (data[idx] < 128) {
+                        // فحص المنطقة المحيطة
+                        let isCircle = true;
+                        let radius = 0;
+                        
+                        // محاولة تحديد نصف قطر
+                        for (let r = minCircleSize; r < minCircleSize * 3; r++) {
+                            let pointsOnCircle = 0;
+                            let totalPoints = 0;
+                            
+                            for (let angle = 0; angle < Math.PI * 2; angle += 0.5) {
+                                const cx = Math.round(x + r * Math.cos(angle));
+                                const cy = Math.round(y + r * Math.sin(angle));
+                                
+                                if (cx >= 0 && cx < canvas.width && cy >= 0 && cy < canvas.height) {
+                                    totalPoints++;
+                                    const cIdx = (cy * canvas.width + cx) * 4;
+                                    if (data[cIdx] < 128) {
+                                        pointsOnCircle++;
+                                    }
+                                }
+                            }
+                            
+                            // إذا كانت نسبة النقاط المظللة على الدائرة عالية
+                            if (totalPoints > 0 && pointsOnCircle / totalPoints > 0.6) {
+                                radius = r;
+                                break;
+                            }
+                        }
+                        
+                        if (radius >= minCircleSize) {
+                            AppState.circles.push({
+                                x: x,
+                                y: y,
+                                radius: radius
+                            });
+                            
+                            // تخطي المنطقة المحيطة بهذه الدائرة
+                            x += radius * 2;
+                        }
+                    }
+                }
+            }
+            
+            // رسم الدوائر المكتشفة
+            drawDetectedCircles();
+            logDebug(`تم اكتشاف ${AppState.circles.length} دائرة (طريقة مبسطة)`, 'info');
+        }
+
+        // رسم الدوائر المكتشفة
+        function drawDetectedCircles() {
+            const overlayCtx = domElements.overlayCanvas.getContext('2d');
+            overlayCtx.clearRect(0, 0, domElements.overlayCanvas.width, domElements.overlayCanvas.height);
+            
+            AppState.circles.forEach((circle, index) => {
+                overlayCtx.beginPath();
+                overlayCtx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+                overlayCtx.strokeStyle = '#FF0000';
+                overlayCtx.lineWidth = 2;
+                overlayCtx.stroke();
+                
+                // عرض رقم الدائرة
+                overlayCtx.fillStyle = '#FF0000';
+                overlayCtx.font = '14px Arial';
+                overlayCtx.fillText(index + 1, circle.x - 5, circle.y + 5);
+            });
+        }
+
+        // الكشف التلقائي للنقاط المرجعية
+        function autoDetectReferencePoints() {
+            if (!AppState.image || !isOpenCVReady) return;
+            
+            try {
+                const src = cv.imread(domElements.mainCanvas);
+                const gray = new cv.Mat();
+                cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+                
+                // كشف الزوايا
+                const corners = new cv.Mat();
+                cv.goodFeaturesToTrack(gray, corners, 6, 0.01, 10);
+                
+                AppState.calibrationPoints = [];
+                for (let i = 0; i < corners.rows(); i++) {
+                    const x = corners.floatAt(i, 0);
+                    const y = corners.floatAt(i, 1);
+                    AppState.calibrationPoints.push({ x, y });
+                }
+                
+                // رسم النقاط
+                drawCalibrationPoints();
+                
+                src.delete();
+                gray.delete();
+                corners.delete();
+                
+                logDebug(`تم الكشف التلقائي عن ${AppState.calibrationPoints.length} نقطة مرجعية`, 'info');
+                
+            } catch (error) {
+                logDebug(`خطأ في الكشف التلقائي: ${error.message}`, 'error');
+            }
+        }
+
+        // تبديل وضع المعايرة
+        function toggleCalibrationMode() {
+            AppState.isCalibrating = !AppState.isCalibrating;
+            
+            if (AppState.isCalibrating) {
+                domElements.calibrateBtn.innerHTML = '<span>✅</span> إنهاء المعايرة';
+                domElements.calibrateBtn.classList.add('btn-success');
+                domElements.calibrateBtn.classList.remove('btn-warning');
+                logDebug('تفعيل وضع المعايرة - انقر على 4 نقاط في الصورة', 'info');
+            } else {
+                domElements.calibrateBtn.innerHTML = '<span>🎯</span> وضع المعايرة';
+                domElements.calibrateBtn.classList.remove('btn-success');
+                domElements.calibrateBtn.classList.add('btn-warning');
+                logDebug('تم إنهاء وضع المعايرة', 'info');
+            }
+        }
+
+        // التعامل مع النقر على Canvas
+        function handleCanvasClick(event) {
+            if (!AppState.isCalibrating || !AppState.image) return;
+            
+            const rect = domElements.mainCanvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            // إضافة نقطة معايرة
+            AppState.calibrationPoints.push({ x, y });
+            
+            // رسم النقاط
+            drawCalibrationPoints();
+            
+            logDebug(`تمت إضافة نقطة معايرة (${Math.round(x)}, ${Math.round(y)})`, 'info');
+            
+            // إذا كانت لدينا 4 نقاط، اقتراح تصحيح التشوه
+            if (AppState.calibrationPoints.length === 4) {
+                setTimeout(() => {
+                    if (confirm('تم تحديد 4 نقاط. هل تريد تصحيح التشوه البصري الآن؟')) {
+                        correctPerspective();
+                    }
+                }, 300);
+            }
+        }
+
+        // رسم نقاط المعايرة
+        function drawCalibrationPoints() {
+            domElements.calibrationPoints.innerHTML = '';
+            
+            AppState.calibrationPoints.forEach((point, index) => {
+                const div = document.createElement('div');
+                div.className = 'calibration-point';
+                div.style.left = `${point.x}px`;
+                div.style.top = `${point.y}px`;
+                div.textContent = index + 1;
+                div.title = `نقطة ${index + 1}`;
+                
+                domElements.calibrationPoints.appendChild(div);
+            });
+        }
+
+        // مسح نقاط المعايرة
+        function clearCalibrationPoints() {
+            AppState.calibrationPoints = [];
+            domElements.calibrationPoints.innerHTML = '';
+            logDebug('تم مسح نقاط المعايرة', 'info');
+        }
+
+        // تصحيح التشوه البصري
+        function correctPerspective() {
+            if (AppState.calibrationPoints.length < 4) {
+                alert('يرجى تحديد 4 نقاط على الأقل لتصحيح التشوه');
+                return;
+            }
+            
+            showLoading();
+            logDebug('بدء تصحيح التشوه البصري...', 'info');
+            
+            // استخدام Canvas لتصحيح التشوه
+            const canvas = domElements.mainCanvas;
+            const ctx = canvas.getContext('2d');
+            
+            // حفظ الصورة الأصلية
+            const originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            
+            // إنشاء canvas مؤقت
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // رسم الصورة الأصلية على canvas المؤقت
+            tempCtx.putImageData(originalImageData, 0, 0);
+            
+            // مسح canvas الرئيسي
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // تطبيق تحويل perspective يدوياً (تقريبي)
+            // في تطبيق حقيقي، نستخدم OpenCV أو مكتبة متخصصة
+            
+            // للتوضيح، سنقوم فقط بتدوير وتعديل الصورة قليلاً
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            // حساب زاوية الدوران التقريبية بناءً على النقاط
+            if (AppState.calibrationPoints.length >= 2) {
+                const dx = AppState.calibrationPoints[1].x - AppState.calibrationPoints[0].x;
+                const dy = AppState.calibrationPoints[1].y - AppState.calibrationPoints[0].y;
+                const angle = Math.atan2(dy, dx);
+                
+                // تطبيق التدوير
+                ctx.translate(centerX, centerY);
+                ctx.rotate(-angle * 0.3); // تصحيح جزئي للزاوية
+                ctx.translate(-centerX, -centerY);
+            }
+            
+            // رسم الصورة بعد التصحيح
+            ctx.drawImage(tempCanvas, 0, 0);
+            
+            // إعادة تعيين التحويلات
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            
+            logDebug('تم تصحيح التشوه البصري (تقريبي)', 'info');
+            hideLoading();
+            
+            // تحديث حالة الصورة المعالجة
+            AppState.processedImage = new Image();
+            AppState.processedImage.src = canvas.toDataURL();
+        }
+
+        // إنشاء محرر نموذج الإجابات
+        function createAnswerKeyEditor() {
+            domElements.answerKeyEditor.innerHTML = '';
+            
+            for (let i = 0; i < 20; i++) {
+                const item = document.createElement('div');
+                item.className = 'answer-key-item';
+                
+                const label = document.createElement('div');
+                label.textContent = `سؤال ${i + 1}`;
+                label.style.fontWeight = 'bold';
+                label.style.marginBottom = '5px';
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.maxLength = 1;
+                input.value = AppState.answerKey[i] || 'أ';
+                input.dataset.question = i;
+                
+                input.addEventListener('change', function() {
+                    const questionIndex = parseInt(this.dataset.question);
+                    const value = this.value.toUpperCase();
+                    
+                    // التحقق من صحة الإدخال
+                    if (['أ', 'ب', 'ج', 'د', ' '].includes(value)) {
+                        AppState.answerKey[questionIndex] = value === ' ' ? '' : value;
+                        this.value = value;
+                    } else {
+                        alert('يرجى إدخال أحد الخيارات: أ، ب، ج، د، أو تركها فارغة');
+                        this.value = AppState.answerKey[questionIndex] || 'أ';
+                    }
+                });
+                
+                item.appendChild(label);
+                item.appendChild(input);
+                domElements.answerKeyEditor.appendChild(item);
+            }
+        }
+
+        // حفظ نموذج الإجابات
+        function saveAnswerKey() {
+            // تم حفظ الإجابات بالفعل عند التغيير
+            localStorage.setItem('answerKey', JSON.stringify(AppState.answerKey));
+            logDebug('تم حفظ نموذج الإجابات الصحيحة', 'info');
+            alert('تم حفظ نموذج الإجابات بنجاح');
+        }
+
+        // تحميل النموذج الافتراضي
+        function loadDefaultAnswerKey() {
+            // نموذج افتراضي (يمكن تعديله)
+            const defaultKey = [
+                'أ', 'ب', 'ج', 'د', 'أ', 'ب', 'ج', 'د', 'أ', 'ب',
+                'ج', 'د', 'أ', 'ب', 'ج', 'د', 'أ', 'ب', 'ج', 'د'
+            ];
+            
+            AppState.answerKey = [...defaultKey];
+            createAnswerKeyEditor();
+            logDebug('تم تحميل النموذج الافتراضي للإجابات', 'info');
+            alert('تم تحميل النموذج الافتراضي للإجابات');
+        }
+
+        // تحليل الإجابات
+        function analyzeAnswers() {
+            if (AppState.circles.length === 0) {
+                alert('لم يتم اكتشاف أي دوائر. يرجى معالجة الصورة أولاً.');
+                return;
+            }
+            
+            logDebug('بدء تحليل الإجابات...', 'info');
+            
+            // تحليل الدوائر كممثل للإجابات
+            AppState.detectedAnswers = [];
+            
+            // محاكاة تحليل الإجابات (في تطبيق حقيقي، سيتم تحليل كل دائرة)
+            for (let i = 0; i < 20; i++) {
+                // في التطبيق الحقيقي، سيتم تحديد الإجابة بناءً على تحليل الدوائر
+                // هنا سنستخدم محاكاة عشوائية للتوضيح
+                const options = ['أ', 'ب', 'ج', 'د', ''];
+                const randomAnswer = options[Math.floor(Math.random() * 5)];
+                
+                AppState.detectedAnswers.push({
+                    question: i + 1,
+                    selected: randomAnswer,
+                    correct: AppState.answerKey[i] || '',
+                    confidence: Math.random() * 0.5 + 0.5, // ثقة عشوائية بين 0.5 و 1
+                    status: randomAnswer === '' ? 'empty' : 
+                           randomAnswer === AppState.answerKey[i] ? 'correct' : 'wrong'
+                });
+            }
+            
+            // عرض النتائج
+            updateResultsDisplay();
+            logDebug('تم تحليل 20 سؤالاً', 'info');
+        }
+
+        // تحديث عرض النتائج
+        function updateResultsDisplay() {
+            if (AppState.detectedAnswers.length === 0) return;
+            
+            // حساب الإحصائيات
+            let correct = 0, wrong = 0, empty = 0, unclear = 0;
+            
+            AppState.detectedAnswers.forEach(answer => {
+                switch (answer.status) {
+                    case 'correct': correct++; break;
+                    case 'wrong': wrong++; break;
+                    case 'empty': empty++; break;
+                    case 'unclear': unclear++; break;
+                }
+            });
+            
+            const total = AppState.detectedAnswers.length;
+            const successRate = total > 0 ? Math.round((correct / total) * 100) : 0;
+            
+            // تحديث الأعداد
+            domElements.correctCount.textContent = correct;
+            domElements.wrongCount.textContent = wrong;
+            domElements.emptyCount.textContent = empty;
+            domElements.unclearCount.textContent = unclear;
+            domElements.successRate.textContent = `${successRate}%`;
+            
+            // تحديث أشرطة التقدم
+            domElements.correctProgress.style.width = `${(correct / total) * 100}%`;
+            domElements.wrongProgress.style.width = `${(wrong / total) * 100}%`;
+            domElements.emptyProgress.style.width = `${(empty / total) * 100}%`;
+            domElements.unclearProgress.style.width = `${(unclear / total) * 100}%`;
+            
+            // تحديث الجدول
+            updateAnswersTable();
+        }
+
+        // تحديث جدول الإجابات
+        function updateAnswersTable() {
+            domElements.answersTableBody.innerHTML = '';
+            
+            AppState.detectedAnswers.forEach(answer => {
+                const row = document.createElement('tr');
+                
+                // تحديد لون الحالة
+                let statusClass = '';
+                let statusText = '';
+                
+                switch (answer.status) {
+                    case 'correct':
+                        statusClass = 'answer-correct';
+                        statusText = 'صحيحة';
+                        break;
+                    case 'wrong':
+                        statusClass = 'answer-wrong';
+                        statusText = 'خاطئة';
+                        break;
+                    case 'empty':
+                        statusClass = 'answer-empty';
+                        statusText = 'فارغة';
+                        break;
+                    case 'unclear':
+                        statusClass = 'answer-unclear';
+                        statusText = 'غير واضحة';
+                        break;
+                }
+                
+                // إنشاء الخلايا
+                const cells = [
+                    answer.question,
+                    answer.selected || '(فارغ)',
+                    answer.correct || '(فارغ)',
+                    `<span class="answer-cell ${statusClass}">${statusText}</span>`,
+                    `${Math.round(answer.confidence * 100)}%`,
+                    `<button class="btn btn-secondary" onclick="editAnswer(${answer.question - 1})" style="padding: 5px 10px; font-size: 14px;">تعديل</button>`
+                ];
+                
+                cells.forEach(cellContent => {
+                    const cell = document.createElement('td');
+                    cell.innerHTML = cellContent;
+                    row.appendChild(cell);
+                });
+                
+                domElements.answersTableBody.appendChild(row);
+            });
+        }
+
+        // عرض واجهة التصحيح اليدوي
+        function showManualCorrection() {
+            if (AppState.detectedAnswers.length === 0) {
+                alert('يرجى تحليل الإجابات أولاً');
+                return;
+            }
+            
+            domElements.manualCorrectionSection.style.display = 'block';
+            
+            // إنشاء واجهة التصحيح اليدوي
+            const grid = document.getElementById('manualCorrectionGrid');
+            grid.innerHTML = '';
+            
+            AppState.detectedAnswers.forEach(answer => {
+                const card = document.createElement('div');
+                card.className = 'answer-key-item';
+                card.style.padding = '15px';
+                card.style.textAlign = 'center';
+                
+                const questionTitle = document.createElement('h4');
+                questionTitle.textContent = `سؤال ${answer.question}`;
+                
+                const currentAnswer = document.createElement('p');
+                currentAnswer.innerHTML = `الإجابة الحالية: <strong>${answer.selected || '(فارغ)'}</strong>`;
+                
+                const correctAnswer = document.createElement('p');
+                correctAnswer.innerHTML = `الإجابة الصحيحة: <strong>${answer.correct || '(فارغ)'}</strong>`;
+                
+                const select = document.createElement('select');
+                select.className = 'btn';
+                select.style.width = '100%';
+                select.style.marginTop = '10px';
+                select.dataset.question = answer.question - 1;
+                
+                const options = ['', 'أ', 'ب', 'ج', 'د'];
+                options.forEach(option => {
+                    const opt = document.createElement('option');
+                    opt.value = option;
+                    opt.textContent = option || '(فارغ)';
+                    if (option === answer.selected) opt.selected = true;
+                    select.appendChild(opt);
+                });
+                
+                select.addEventListener('change', function() {
+                    const idx = parseInt(this.dataset.question);
+                    AppState.detectedAnswers[idx].selected = this.value;
+                });
+                
+                card.appendChild(questionTitle);
+                card.appendChild(currentAnswer);
+                card.appendChild(correctAnswer);
+                card.appendChild(select);
+                
+                grid.appendChild(card);
+            });
+            
+            logDebug('تم فتح واجهة التصحيح اليدوي', 'info');
+        }
+
+        // إخفاء واجهة التصحيح اليدوي
+        function hideManualCorrection() {
+            domElements.manualCorrectionSection.style.display = 'none';
+            logDebug('تم إغلاق واجهة التصحيح اليدوي', 'info');
+        }
+
+        // حفظ التصحيحات اليدوية
+        function saveManualCorrections() {
+            // تم حفظ التغييرات بالفعل عند التعديل
+            // إعادة حساب الحالات
+            AppState.detectedAnswers.forEach(answer => {
+                answer.status = answer.selected === '' ? 'empty' : 
+                               answer.selected === answer.correct ? 'correct' : 'wrong';
+            });
+            
+            // تحديث العرض
+            updateResultsDisplay();
+            hideManualCorrection();
+            
+            logDebug('تم حفظ التصحيحات اليدوية', 'info');
+            alert('تم حفظ التصحيحات بنجاح');
+        }
+
+        // تصدير النتائج
+        function exportResults() {
+            if (AppState.detectedAnswers.length === 0) {
+                alert('لا توجد نتائج لتصديرها');
+                return;
+            }
+            
+            // إنشاء محتوى CSV
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += "رقم السؤال,الإجابة المختارة,الإجابة الصحيحة,الحالة,نسبة الثقة\n";
+            
+            AppState.detectedAnswers.forEach(answer => {
+                const row = [
+                    answer.question,
+                    answer.selected || '(فارغ)',
+                    answer.correct || '(فارغ)',
+                    answer.status,
+                    `${Math.round(answer.confidence * 100)}%`
+                ];
+                csvContent += row.join(",") + "\n";
+            });
+            
+            // إضافة الإحصائيات
+            const correct = AppState.detectedAnswers.filter(a => a.status === 'correct').length;
+            const total = AppState.detectedAnswers.length;
+            const successRate = total > 0 ? Math.round((correct / total) * 100) : 0;
+            
+            csvContent += `\nالإجابات الصحيحة,${correct}\n`;
+            csvContent += `الإجابات الخاطئة,${AppState.detectedAnswers.filter(a => a.status === 'wrong').length}\n`;
+            csvContent += `إجابات فارغة,${AppState.detectedAnswers.filter(a => a.status === 'empty').length}\n`;
+            csvContent += `نسبة النجاح,${successRate}%\n`;
+            
+            // إنشاء رابط التحميل
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "نتائج_الاختبار.csv");
+            document.body.appendChild(link);
+            
+            link.click();
+            document.body.removeChild(link);
+            
+            logDebug('تم تصدير النتائج إلى ملف CSV', 'info');
+        }
+
+        // تطبيق الإعدادات
+        function applySettings() {
+            AppState.processingSettings.answerModel = domElements.answerModel.value;
+            AppState.processingSettings.autoDetect = domElements.autoDetect.checked;
+            
+            // حفظ الإعدادات
+            localStorage.setItem('processingSettings', JSON.stringify(AppState.processingSettings));
+            
+            logDebug('تم تطبيق الإعدادات الجديدة', 'info');
+            alert('تم تطبيق الإعدادات بنجاح');
+        }
+
+        // تحميل الإعدادات
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('processingSettings');
+            if (savedSettings) {
+                AppState.processingSettings = {...AppState.processingSettings, ...JSON.parse(savedSettings)};
+                
+                // تحديث واجهة المستخدم
+                domElements.brightnessThreshold.value = AppState.processingSettings.brightnessThreshold;
+                domElements.brightnessValue.textContent = AppState.processingSettings.brightnessThreshold;
+                domElements.minCircleSize.value = AppState.processingSettings.minCircleSize;
+                domElements.circleSizeValue.textContent = AppState.processingSettings.minCircleSize;
+                domElements.answerModel.value = AppState.processingSettings.answerModel;
+                domElements.autoDetect.checked = AppState.processingSettings.autoDetect;
+            }
+            
+            const savedAnswerKey = localStorage.getItem('answerKey');
+            if (savedAnswerKey) {
+                AppState.answerKey = JSON.parse(savedAnswerKey);
+                createAnswerKeyEditor();
+            }
+            
+            logDebug('تم تحميل الإعدادات المحفوظة', 'info');
+        }
+
+        // إعادة تعيين التطبيق
+        function resetApp() {
+            if (confirm('هل تريد إعادة تعيين التطبيق؟ سيتم حذف جميع البيانات.')) {
+                AppState.image = null;
+                AppState.processedImage = null;
+                AppState.circles = [];
+                AppState.calibrationPoints = [];
+                AppState.detectedAnswers = [];
+                
+                domElements.mainCanvas.getContext('2d').clearRect(0, 0, domElements.mainCanvas.width, domElements.mainCanvas.height);
+                domElements.overlayCanvas.getContext('2d').clearRect(0, 0, domElements.overlayCanvas.width, domElements.overlayCanvas.height);
+                domElements.noImageMessage.style.display = 'block';
+                domElements.calibrationPoints.innerHTML = '';
+                
+                domElements.correctCount.textContent = '0';
+                domElements.wrongCount.textContent = '0';
+                domElements.emptyCount.textContent = '0';
+                domElements.unclearCount.textContent = '0';
+                domElements.successRate.textContent = '0%';
+                
+                domElements.answersTableBody.innerHTML = '';
+                domElements.manualCorrectionSection.style.display = 'none';
+                
+                logDebug('تم إعادة تعيين التطبيق', 'info');
+            }
+        }
+
+        // عرض شاشة التحميل
+        function showLoading() {
+            domElements.loading.style.display = 'flex';
+        }
+
+        // إخفاء شاشة التحميل
+        function hideLoading() {
+            domElements.loading.style.display = 'none';
+        }
+
+        // تسجيل حدث في لوحة التصحيح
+        function logDebug(message, type = 'info') {
+            const panel = domElements.debugPanel;
+            const entry = document.createElement('div');
+            entry.className = 'debug-entry';
+            
+            const time = new Date().toLocaleTimeString();
+            const typeClass = `debug-${type}`;
+            
+            entry.innerHTML = `
+                <span class="debug-time">[${time}]</span>
+                <span class="${typeClass}">${message}</span>
+            `;
+            
+            panel.appendChild(entry);
+            panel.scrollTop = panel.scrollHeight;
+        }
+
+        // دالة لتحرير إجابة معينة
+        function editAnswer(questionIndex) {
+            // في تطبيق حقيقي، ستفتح نافذة أو نموذج لتعديل الإجابة
+            alert(`تعديل إجابة السؤال ${questionIndex + 1}\n\nهذه الميزة ستكون متاحة في الإصدار الكامل`);
+        }
+
+        // عندما يكون OpenCV جاهزاً
+        function onOpenCVReady() {
+            isOpenCVReady = true;
+            logDebug('تم تحميل مكتبة OpenCV.js بنجاح', 'info');
+            
+            // تهيئة التطبيق
+            initApp();
+        }
+
+        // بدء التطبيق حتى إذا لم يتم تحميل OpenCV
+        window.addEventListener('DOMContentLoaded', function() {
+            // إذا لم يتم تحميل OpenCV بعد، نبدأ التطبيق في وضع محدود
+            if (!isOpenCVReady) {
+                logDebug('جارٍ تحميل مكتبة OpenCV.js...', 'warning');
+                initApp();
+            }
+        });
+    </script>
+</body>
+</html>

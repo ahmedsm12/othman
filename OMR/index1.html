@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>الماسح الذكي لنماذج الإجابة - معايرة 6 نقاط | 20 سؤالاً</title>
+  <style>
+    :root{
+      --primary:#3498db; --danger:#e74c3c; --success:#2ecc71; --dark:#2c3e50; --muted:#7f8c8d;
+      --bg:#eef2f7; --card:#ffffff;
+    }
+    *{ box-sizing:border-box; }
+    body{ font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:var(--bg); margin:0; padding:20px; color:var(--dark); }
+    .container{ max-width:1200px; margin:auto; background:var(--card); border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,0.12); overflow:hidden; }
+    header{ background:linear-gradient(90deg,#2c3e50,#4a6491); color:#fff; padding:18px 24px; text-align:center; }
+    header h1{ margin:0 0 6px; font-size:1.8rem; }
+    header p{ margin:0; opacity:0.95; }
+    .main{ display:grid; grid-template-columns:1.15fr 0.85fr; gap:20px; padding:18px; }
+    @media (max-width:1000px){ .main{ grid-template-columns:1fr; } }
+
+    .card{ background:#f8f9fa; border-radius:12px; padding:16px; box-shadow:0 4px 14px rgba(0,0,0,0.08); }
+    .title{ font-weight:700; margin-bottom:10px; border-bottom:3px solid var(--primary); padding-bottom:6px; display:flex; justify-content:space-between; align-items:center; }
+    .btn{ display:inline-flex; align-items:center; gap:6px; border:none; border-radius:8px; padding:10px 14px; cursor:pointer; font-weight:600; }
+    .btn-primary{ background:var(--primary); color:#fff; }
+    .btn-success{ background:var(--success); color:#fff; }
+    .btn-danger{ background:var(--danger); color:#fff; }
+    .btn-muted{ background:#95a5a6; color:#fff; }
+    .btn-outline{ background:#fff; border:2px solid var(--primary); color:var(--primary); }
+    .controls{ display:flex; gap:10px; flex-wrap:wrap; margin:10px 0 14px; }
+
+    .upload{ border:2px dashed var(--primary); border-radius:10px; padding:14px; text-align:center; background:#e8f4fc; cursor:pointer; }
+    .upload:hover{ background:#d6eaf8; }
+    .upload input{ display:none; }
+
+    .canvas-wrap{ position:relative; border:2px solid #ddd; border-radius:10px; overflow:hidden; background:#fff; }
+    canvas{ display:block; width:100%; height:auto; }
+    .overlay{ position:absolute; inset:0; pointer-events:none; }
+    .marker{ position:absolute; width:12px; height:12px; border-radius:50%; border:2px solid var(--danger); background:rgba(231,76,60,0.25); transform:translate(-50%,-50%); }
+    .label{ position:absolute; transform:translate(-50%,-140%); background:rgba(0,0,0,0.75); color:#fff; font-size:0.75rem; padding:2px 6px; border-radius:4px; white-space:nowrap; }
+
+    .guide{ background:#3498db; color:#fff; border-radius:8px; padding:10px; margin-top:12px; }
+    .hidden{ display:none !important; }
+
+    .panel{ background:#fff; border-radius:10px; padding:10px; border:1px solid #eee; }
+    .settings{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:10px 0; }
+    .setting{ background:#fff; border:1px solid #ddd; border-radius:8px; padding:10px; }
+    .setting label{ font-weight:600; font-size:0.9rem; color:#5d4037; }
+    .setting input[type=range]{ width:100%; }
+
+    .stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:10px 0; }
+    .stat{ background:#fff; border-radius:8px; padding:10px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+    .stat .v{ font-size:1.25rem; font-weight:700; }
+    .progress{ height:14px; background:#ecf0f1; border-radius:8px; overflow:hidden; }
+    .progress .fill{ height:100%; background:linear-gradient(90deg,#2ecc71,#27ae60); width:0%; transition:width .4s; }
+
+    .results{ max-height:280px; overflow:auto; margin-top:10px; }
+    .item{ padding:8px; border-radius:8px; border-right:4px solid #ddd; margin:6px 0; font-size:0.92rem; }
+    .item.correct{ background:#d5f4e6; border-right-color:#2ecc71; }
+    .item.wrong{ background:#fadbd8; border-right-color:#e74c3c; }
+    .item.empty{ background:#f8f9fa; border-right-color:#95a5a6; }
+    .item.unclear{ background:#fef9e7; border-right-color:#f39c12; }
+
+    .key{ background:#fffde7; border:2px solid #f1c40f; border-radius:10px; padding:10px; }
+    .grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+    .q{ background:#fff; border:2px solid #ddd; border-radius:8px; padding:8px; text-align:center; }
+    .q .n{ font-weight:700; font-size:0.85rem; }
+    .q .a{ font-weight:700; font-size:1.05rem; margin-top:4px; }
+
+    .debug{ background:#2c3e50; color:#fff; border-radius:10px; padding:10px; font-family:monospace; font-size:0.8rem; max-height:200px; overflow:auto; margin-top:10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📱 الماسح الذكي لنماذج الإجابة</h1>
+      <p>نظام 20 سؤالاً | معايرة دقيقة بـ6 نقاط لكل عمود</p>
+    </header>
+
+    <div class="main">
+      <!-- القسم الأيسر: الصورة والمعايرة -->
+      <div class="card">
+        <div class="title">📸 معالجة الصورة</div>
+
+        <label class="upload" id="uploadLabel">
+          <div>اسحب وأفلت صورة النموذج هنا أو انقر للاختيار</div>
+          <input type="file" id="imageInput" accept="image/*"/>
+        </label>
+
+        <div class="controls">
+          <button class="btn btn-primary" id="calibrationBtn">🎯 وضع المعايرة (6 نقاط)</button>
+          <button class="btn btn-success" id="scanBtn">🔍 مسح الإجابات</button>
+          <button class="btn btn-muted" id="resetBtn">↻ إعادة تعيين</button>
+        </div>
+
+        <div class="canvas-wrap" id="canvasWrap">
+          <canvas id="canvas"></canvas>
+          <div class="overlay" id="overlay"></div>
+        </div>
+
+        <div id="calibrationGuide" class="guide hidden">
+          <strong>وضع المعايرة (6 نقاط – بالترتيب):</strong><br/>
+          1) س1 عمود1 خيار "أ"<br/>
+          2) س10 عمود1 خيار "أ"<br/>
+          3) س1 عمود1 خيار "د"<br/>
+          4) س1 عمود2 خيار "أ"<br/>
+          5) س10 عمود2 خيار "أ"<br/>
+          6) س1 عمود2 خيار "د"
+        </div>
+
+        <div class="panel">
+          <div class="title" style="border-bottom:0;">⚙️ إعدادات الكشف</div>
+          <div class="settings">
+            <div class="setting">
+              <label>عتبة السطوع</label>
+              <input type="range" min="0" max="255" value="120" id="brightnessThreshold"/>
+              <div style="font-size:0.85rem; color:var(--muted);">القيمة الحالية: <span id="brightnessVal">120</span></div>
+            </div>
+            <div class="setting">
+              <label>نصف قطر الكشف</label>
+              <input type="range" min="4" max="18" value="10" id="detectionRadius"/>
+              <div style="font-size:0.85rem; color:var(--muted);">القيمة الحالية: <span id="radiusVal">10</span> px</div>
+            </div>
+            <div class="setting">
+              <label>حد الثقة الدنيا</label>
+              <input type="range" min="0.1" max="0.8" step="0.05" value="0.40" id="minConfidence"/>
+              <div style="font-size:0.85rem; color:var(--muted);">القيمة الحالية: <span id="minConfVal">0.40</span></div>
+            </div>
+            <div class="setting">
+              <label>تحمل تعدد التظليل</label>
+              <input type="range" min="0.05" max="0.3" step="0.01" value="0.12" id="multiTolerance"/>
+              <div style="font-size:0.85rem; color:var(--muted);">القيمة الحالية: <span id="multiTolVal">0.12</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="debug hidden" id="debug"></div>
+      </div>
+
+      <!-- القسم الأيمن: النتائج ومفتاح الإجابات -->
+      <div class="card">
+        <div class="title">📊 النتائج</div>
+
+        <div class="panel">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="font-weight:700;">📈 النتيجة النهائية</div>
+            <div id="finalScore" style="font-weight:800; color:#27ae60; font-size:1.2rem;">0%</div>
+          </div>
+          <div class="progress"><div class="fill" id="progressFill"></div></div>
+          <div class="stats">
+            <div class="stat"><div class="v" id="correctCount">0</div><div class="l">صحيحة</div></div>
+            <div class="stat"><div class="v" id="wrongCount">0</div><div class="l">خاطئة</div></div>
+            <div class="stat"><div class="v" id="emptyCount">0</div><div class="l">فارغة</div></div>
+            <div class="stat"><div class="v" id="unclearCount">0</div><div class="l">غير واضحة</div></div>
+          </div>
+          <div class="results" id="resultsList"></div>
+        </div>
+
+        <div class="key" style="margin-top:12px;">
+          <div style="font-weight:700; color:#f39c12; margin-bottom:8px;">🗝️ نموذج الإجابة الصحيحة (قابل للتعديل)</div>
+          <div class="grid" id="keyGrid"></div>
+          <div class="controls">
+            <textarea id="keyTextarea" rows="6" style="width:100%; border:1px solid #ddd; border-radius:8px; padding:8px;" placeholder="اكتب 20 سطراً (أ/ب/ج/د) لتحديث النموذج"></textarea>
+            <button class="btn btn-primary" id="applyKey">💾 تطبيق النموذج</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // الحالة العامة
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d', { willReadFrequently:true });
+  const overlay = document.getElementById('overlay');
+  const debugEl = document.getElementById('debug');
+
+  let img = null;
+  let calibrationMode = false;
+  let calibrationPoints = []; // 6 نقاط بالترتيب
+  let questionCoordinates = {}; // لكل سؤال: options {أ, ب, ج, د} بنسب canvas
+  let detectionSettings = {
+    brightnessThreshold: 120,
+    detectionRadius: 10,
+    minConfidence: 0.40,
+    multiMarkTolerance: 0.12
+  };
+
+  // نموذج الإجابات (قابل للتعديل)
+  let correctAnswers = JSON.parse(localStorage.getItem('correctAnswers')||'null') || {
+    1:'أ',2:'ب',3:'ج',4:'د',5:'أ',
+    6:'ب',7:'ج',8:'د',9:'أ',10:'ب',
+    11:'ج',12:'د',13:'أ',14:'ب',15:'ج',
+    16:'د',17:'أ',18:'ب',19:'ج',20:'د'
+  };
+
+  // تهيئة
+  init();
+  function init(){
+    bindUI();
+    renderAnswerKey();
+    canvas.width = 900; canvas.height = 1200; // حجم افتراضي، يُستبدل بعد تحميل الصورة
+    log('جاهز للمعايرة والمسح.');
+  }
+
+  // ربط الواجهة
+  function bindUI(){
+    // رفع الصورة
+    document.getElementById('uploadLabel').addEventListener('click',()=>document.getElementById('imageInput').click());
+    document.getElementById('imageInput').addEventListener('change', handleImageUpload);
+
+    // معايرة
+    document.getElementById('calibrationBtn').addEventListener('click', toggleCalibrationMode);
+    canvas.addEventListener('click', captureCalibrationPoint);
+
+    // مسح
+    document.getElementById('scanBtn').addEventListener('click', scanAnswers);
+
+    // إعدادات
+    document.getElementById('brightnessThreshold').addEventListener('input', e=>{
+      detectionSettings.brightnessThreshold = parseInt(e.target.value);
+      document.getElementById('brightnessVal').textContent = e.target.value;
+    });
+    document.getElementById('detectionRadius').addEventListener('input', e=>{
+      detectionSettings.detectionRadius = parseInt(e.target.value);
+      document.getElementById('radiusVal').textContent = e.target.value;
+    });
+    document.getElementById('minConfidence').addEventListener('input', e=>{
+      detectionSettings.minConfidence = parseFloat(e.target.value);
+      document.getElementById('minConfVal').textContent = e.target.value;
+    });
+    document.getElementById('multiTolerance').addEventListener('input', e=>{
+      detectionSettings.multiMarkTolerance = parseFloat(e.target.value);
+      document.getElementById('multiTolVal').textContent = e.target.value;
+    });
+
+    // نموذج الإجابة
+    document.getElementById('applyKey').addEventListener('click', applyAnswerKeyFromTextarea);
+
+    // إعادة تعيين
+    document.getElementById('resetBtn').addEventListener('click', resetApp);
+  }
+
+  // رفع صورة
+  function handleImageUpload(e){
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      img = new Image();
+      img.onload = ()=>{
+        // ضبط الكانفاس ليتناسب مع الصورة
+        const maxW = 1200, maxH = 1600;
+        const scale = Math.min(maxW/img.width, maxH/img.height, 1);
+        canvas.width = Math.round(img.width*scale);
+        canvas.height = Math.round(img.height*scale);
+        drawImage();
+        clearOverlay();
+        log(`تم تحميل الصورة: ${canvas.width}x${canvas.height}`);
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function drawImage(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  }
+
+  // معايرة
+  function toggleCalibrationMode(){
+    calibrationMode = !calibrationMode;
+    calibrationPoints = [];
+    document.getElementById('calibrationGuide').classList.toggle('hidden', !calibrationMode);
+    clearOverlay();
+    log(calibrationMode ? 'وضع المعايرة مفعل. اتبع ترتيب النقاط (6).' : 'تم إيقاف وضع المعايرة.');
+  }
+
+  function captureCalibrationPoint(e){
+    if (!calibrationMode || !img) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    calibrationPoints.push({x,y});
+    drawMarker(x,y,`نقطة ${calibrationPoints.length}`);
+    const names = ['س1-ع1-أ','س10-ع1-أ','س1-ع1-د','س1-ع2-أ','س10-ع2-أ','س1-ع2-د'];
+    log(`تم التقاط ${names[calibrationPoints.length-1]} عند (${Math.round(x)}, ${Math.round(y)})`);
+    if (calibrationPoints.length === 6){
+      buildGridFrom6Points();
+      toggleCalibrationMode();
+      alert('تمت المعايرة بنجاح لجميع الأسئلة والخيارات.');
+    }
+  }
+
+  function buildGridFrom6Points(){
+    const C1_Q1_A = calibrationPoints[0], C1_Q10_A = calibrationPoints[1], C1_Q1_D = calibrationPoints[2];
+    const C2_Q1_A = calibrationPoints[3], C2_Q10_A = calibrationPoints[4], C2_Q1_D = calibrationPoints[5];
+
+    // خطوة الصف لكل عمود (من سؤال1 إلى سؤال10 عبر 9 فواصل)
+    const col1Step = { x:(C1_Q10_A.x - C1_Q1_A.x)/9, y:(C1_Q10_A.y - C1_Q1_A.y)/9 };
+    const col2Step = { x:(C2_Q10_A.x - C2_Q1_A.x)/9, y:(C2_Q10_A.y - C2_Q1_A.y)/9 };
+
+    // المسافة الأفقية بين الخيارات داخل الصف (أ→د): ثلاث خطوات بين أ-ب-ج-د
+    const col1OptStep = (C1_Q1_A.x - C1_Q1_D.x)/3;
+    const col2OptStep = (C2_Q1_A.x - C2_Q1_D.x)/3;
+
+    if (Math.abs(col1OptStep) < 5 || Math.abs(col2OptStep) < 5){
+      alert('المسافة بين خيارات الصف صغيرة جداً. أعد المعايرة بدقة.');
+      return;
+    }
+
+    questionCoordinates = {};
+
+    // عمود 1: أسئلة 1-10 (من اليمين إلى اليسار: أ، ب، ج، د)
+    for (let r=0; r<10; r++){
+      const baseX = C1_Q1_A.x + col1Step.x * r;
+      const baseY = C1_Q1_A.y + col1Step.y * r;
+      const qNum = 1 + r;
+      questionCoordinates[qNum] = {
+        options: {
+          'أ': toNorm(baseX, baseY),
+          'ب': toNorm(baseX - col1OptStep, baseY),
+          'ج': toNorm(baseX - col1OptStep*2, baseY),
+          'د': toNorm(baseX - col1OptStep*3, baseY)
+        }
+      };
+    }
+
+    // عمود 2: أسئلة 11-20
+    for (let r=0; r<10; r++){
+      const baseX = C2_Q1_A.x + col2Step.x * r;
+      const baseY = C2_Q1_A.y + col2Step.y * r;
+      const qNum = 11 + r;
+      questionCoordinates[qNum] = {
+        options: {
+          'أ': toNorm(baseX, baseY),
+          'ب': toNorm(baseX - col2OptStep, baseY),
+          'ج': toNorm(baseX - col2OptStep*2, baseY),
+          'د': toNorm(baseX - col2OptStep*3, baseY)
+        }
+      };
+    }
+
+    // حفظ المعايرة محلياً
+    localStorage.setItem('calibrationCoordinates', JSON.stringify(questionCoordinates));
+    log('تم حفظ شبكة الإحداثيات في التخزين المحلي.');
+  }
+
+  function toNorm(x,y){ return { x: x/canvas.width, y: y/canvas.height }; }
+
+  // الرسم على الطبقة
+  function drawMarker(x,y,text){
+    const m = document.createElement('div');
+    m.className = 'marker';
+    m.style.left = x+'px'; m.style.top = y+'px';
+    const lbl = document.createElement('div');
+    lbl.className = 'label';
+    lbl.style.left = x+'px'; lbl.style.top = y+'px';
+    lbl.textContent = text;
+    overlay.appendChild(m);
+    overlay.appendChild(lbl);
+  }
+  function clearOverlay(){ overlay.innerHTML=''; }
+
+  // المسح
+  function scanAnswers(){
+    if (!img){ alert('حمّل صورة النموذج أولاً.'); return; }
+    if (!Object.keys(questionCoordinates).length){
+      // محاولة تحميل معايرة محفوظة
+      const saved = localStorage.getItem('calibrationCoordinates');
+      if (saved){ questionCoordinates = JSON.parse(saved); }
+    }
+    if (!Object.keys(questionCoordinates).length){
+      alert('قم بالمعايرة أولاً (6 نقاط).'); return;
+    }
+
+    // تجهيز بيانات الصورة
+    const imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+    const data = imageData.data;
+
+    const scanned = {};
+    const confs = {};
+    clearOverlay();
+
+    for (let q=1; q<=20; q++){
+      const res = detectQuestion(q, data);
+      scanned[q] = res.answer;
+      confs[q] = res.confidence;
+      if (res.draw) drawMarker(res.draw.x, res.draw.y, `س${q}:${res.answer||'?'}`);
+    }
+
+    displayResults(scanned, confs);
+  }
+
+  function detectQuestion(qNum, data){
+    const coords = questionCoordinates[qNum];
+    if (!coords) return { answer:null, confidence:0, draw:null };
+
+    // حساب درجة التظليل لكل خيار
+    const scores = {};
+    const points = {};
+    for (const [opt, p] of Object.entries(coords.options)){
+      const x = Math.round(p.x * canvas.width);
+      const y = Math.round(p.y * canvas.height);
+      points[opt] = { x, y };
+      const brightness = meanBrightnessCircle(x, y, detectionSettings.detectionRadius, data);
+      // الظلال = 255 - السطوع النسبي
+      const darkness = Math.max(0, Math.min(255, 255 - brightness));
+      scores[opt] = darkness / 255; // 0..1
+    }
+
+    // اختيار أفضل خيار
+    const sorted = Object.entries(scores).sort((a,b)=> b[1]-a[1]);
+    const [bestOpt, bestScore] = sorted[0];
+    const secondScore = sorted[1][1];
+
+    // شروط القبول
+    const ambiguous = (bestScore - secondScore) < detectionSettings.multiMarkTolerance;
+    let answer = bestScore >= detectionSettings.minConfidence && !ambiguous ? bestOpt : null;
+    let confidence = bestScore;
+
+    // رسم عند مركز الخيار الأفضل أو خيار "أ" إن لم تُقبل
+    const drawPt = answer ? points[answer] : points['أ'];
+
+    return { answer, confidence, draw: drawPt, optionScores: scores };
+  }
+
+  function meanBrightnessCircle(cx, cy, r, data){
+    let sum = 0, count = 0;
+    const w = canvas.width, h = canvas.height;
+    for (let y = cy - r; y <= cy + r; y++){
+      if (y < 0 || y >= h) continue;
+      for (let x = cx - r; x <= cx + r; x++){
+        if (x < 0 || x >= w) continue;
+        const dx = x - cx, dy = y - cy;
+        if (dx*dx + dy*dy <= r*r){
+          const idx = (y*w + x)*4;
+          const br = (data[idx] + data[idx+1] + data[idx+2]) / 3; // متوسط RGB
+          sum += br; count++;
+        }
+      }
+    }
+    return count ? (sum / count) : 255;
+  }
+
+  // عرض النتائج
+  function displayResults(scanned, confs){
+    // إحصاءات
+    const res = { correct:0, wrong:0, empty:0, unclear:0, details:[] };
+    for (let q=1; q<=20; q++){
+      const s = scanned[q];
+      const c = correctAnswers[q];
+      const conf = confs[q] || 0;
+
+      if (!s){
+        if (conf>0 && conf<detectionSettings.minConfidence){
+          res.unclear++; res.details.push(detail(q, s, c, conf, 'unclear'));
+        } else {
+          res.empty++; res.details.push(detail(q, s, c, 0, 'empty'));
+        }
+      } else if (s === c){
+        res.correct++; res.details.push(detail(q, s, c, conf, 'correct'));
+      } else {
+        res.wrong++; res.details.push(detail(q, s, c, conf, 'wrong'));
+      }
+    }
+
+    // نسبة النجاح (من 20)
+    const percentage = Math.round((res.correct / 20) * 100);
+    document.getElementById('finalScore').textContent = `${percentage}%`;
+    document.getElementById('progressFill').style.width = `${percentage}%`;
+
+    document.getElementById('correctCount').textContent = res.correct;
+    document.getElementById('wrongCount').textContent = res.wrong;
+    document.getElementById('emptyCount').textContent = res.empty;
+    document.getElementById('unclearCount').textContent = res.unclear;
+
+    const list = document.getElementById('resultsList');
+    list.innerHTML = res.details.map(d=>{
+      const cls = `item ${d.kind}`;
+      const status = d.kind==='correct' ? '✓ صحيح' :
+                     d.kind==='wrong' ? '✗ خطأ' :
+                     d.kind==='empty' ? '○ فارغ' : '؟ غير واضح';
+      const corrText = d.kind==='wrong' ? ` (الصحيح: ${d.correct})` : '';
+      return `<div class="${cls}">
+        السؤال ${d.q}: <strong>${d.scanned || '—'}</strong>
+        <span style="float:left;">${status} (${Math.round(d.confidence*100)}%)</span>${corrText}
+      </div>`;
+    }).join('');
+  }
+
+  function detail(q, scanned, correct, confidence, kind){
+    return { q, scanned, correct, confidence, kind };
+  }
+
+  // نموذج الإجابة: عرض وتطبيق
+  function renderAnswerKey(){
+    const grid = document.getElementById('keyGrid');
+    grid.innerHTML='';
+    for (let i=1;i<=20;i++){
+      const div = document.createElement('div');
+      div.className='q';
+      div.innerHTML = `<div class="n">${i}</div><div class="a">${correctAnswers[i]||'?'}</div>`;
+      grid.appendChild(div);
+    }
+    // ملء textarea
+    document.getElementById('keyTextarea').value =
+      Array.from({length:20},(_,i)=> correctAnswers[i+1] || '').join('\n');
+  }
+
+  function applyAnswerKeyFromTextarea(){
+    const lines = document.getElementById('keyTextarea').value.trim().split('\n');
+    const map = { 'A':'أ', 'B':'ب', 'C':'ج', 'D':'د' };
+    for (let i=0;i<20;i++){
+      let val = (lines[i] || '').trim();
+      if (!val) continue;
+      const upper = val.toUpperCase();
+      if (map[upper]) val = map[upper];
+      if (['أ','ب','ج','د'].includes(val)){
+        correctAnswers[i+1] = val;
+      }
+    }
+    localStorage.setItem('correctAnswers', JSON.stringify(correctAnswers));
+    renderAnswerKey();
+    alert('تم تحديث نموذج الإجابات بنجاح.');
+  }
+
+  // إعادة تعيين
+  function resetApp(){
+    img = null;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    clearOverlay();
+    calibrationMode = false;
+    calibrationPoints = [];
+    // لا نمسح correctAnswers (يبقى محفوظاً)
+    // يمكن ترك المعايرة إن أردت، أو مسحها:
+    // localStorage.removeItem('calibrationCoordinates');
+    document.getElementById('finalScore').textContent = '0%';
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('correctCount').textContent = '0';
+    document.getElementById('wrongCount').textContent = '0';
+    document.getElementById('emptyCount').textContent = '0';
+    document.getElementById('unclearCount').textContent = '0';
+    document.getElementById('resultsList').innerHTML = '';
+    document.getElementById('calibrationGuide').classList.add('hidden');
+    log('تمت إعادة التعيين.');
+  }
+
+  // سجل تصحيح
+  function log(msg){
+    debugEl.classList.remove('hidden');
+    const stamp = new Date().toLocaleTimeString();
+    debugEl.innerHTML = `[${stamp}] ${msg}<br/>` + debugEl.innerHTML;
+  }
+</script>
+</body>
+</html>
