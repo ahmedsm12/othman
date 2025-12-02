@@ -1,604 +1,370 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ماسح ضوئي لتصحيح النماذج</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-        }
-        
-        body {
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-            direction: rtl;
-            text-align: right;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background: #f9f9f9;
-        }
-        
-        h2 {
-            color: #34495e;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-        }
-        
-        .camera-section {
-            text-align: center;
-        }
-        
-        #video, #canvas, #correctedCanvas {
-            max-width: 100%;
-            border: 2px solid #ccc;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
-        
-        button {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            margin: 5px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background 0.3s;
-        }
-        
-        button:hover {
-            background: #2980b9;
-        }
-        
-        .btn-success {
-            background: #27ae60;
-        }
-        
-        .btn-danger {
-            background: #e74c3c;
-        }
-        
-        .btn-warning {
-            background: #f39c12;
-        }
-        
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin: 15px 0;
-        }
-        
-        .results {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        @media (max-width: 768px) {
-            .results {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .answer-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .answer-item {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            text-align: center;
-            background: white;
-        }
-        
-        .correct {
-            background: #d4edda;
-            border-color: #c3e6cb;
-        }
-        
-        .incorrect {
-            background: #f8d7da;
-            border-color: #f5c6cb;
-        }
-        
-        .coordinates-display {
-            font-family: monospace;
-            background: #2c3e50;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            overflow-x: auto;
-            margin-top: 10px;
-        }
-        
-        select, input {
-            padding: 8px;
-            margin: 5px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        
-        .model-selector {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 15px 0;
-        }
-        
-        .score-display {
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-            color: #2c3e50;
-            padding: 15px;
-            background: #ecf0f1;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        
-        .calibration-point {
-            position: absolute;
-            width: 15px;
-            height: 15px;
-            background: red;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            cursor: pointer;
-        }
-        
-        .preview-container {
-            position: relative;
-            display: inline-block;
-            margin: 10px;
-        }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>مصحح OMR (أ ب ج د) — 20 سؤالًا</title>
+<style>
+  body { font-family: system-ui, "Segoe UI", Arial; margin: 0; background: #f6f7fb; color: #222; }
+  header { padding: 1rem 1.25rem; background: #fff; border-bottom: 1px solid #eee; }
+  main { display: grid; grid-template-columns: 1fr 380px; gap: 12px; padding: 12px; }
+  .panel { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; }
+  .panel h2 { font-size: 1.05rem; margin: 0 0 8px; }
+  .row { display: grid; grid-template-columns: 1fr 80px; align-items: center; gap: 8px; margin-bottom: 8px; }
+  label { font-size: 0.9rem; }
+  input[type="range"] { width: 100%; }
+  input[type="number"], input[type="text"], select { width: 100%; padding: 6px 8px; border: 1px solid #ddd; border-radius: 6px; }
+  button { padding: 8px 12px; border: 0; border-radius: 8px; background: #2563eb; color: #fff; cursor: pointer; }
+  button.secondary { background: #6b7280; }
+  #video, #canvas { width: 100%; background: #000; border-radius: 10px; }
+  #overlay { position: absolute; inset: 0; pointer-events: none; }
+  .grid { font-size: 0.85rem; margin-top: 8px; }
+  .grid table { width: 100%; border-collapse: collapse; }
+  .grid th, .grid td { border-bottom: 1px solid #eee; padding: 4px 6px; text-align: center; }
+  .ok { color: #0f766e; font-weight: 600; }
+  .bad { color: #dc2626; font-weight: 600; }
+  .hint { color: #64748b; font-size: 0.85rem; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>📱 ماسح ضوئي لتصحيح النماذج الدراسية</h1>
-        
-        <div class="section camera-section">
-            <h2>🎥 التصوير والمسح</h2>
-            <div class="controls">
-                <button id="startCamera">تشغيل الكاميرا</button>
-                <button id="capture" disabled>التقاط صورة</button>
-                <button id="retake" disabled>إعادة التقاط</button>
-                <button id="correctPerspective" disabled>تصحيح التشوه</button>
-            </div>
-            
-            <div>
-                <video id="video" autoplay style="display:none; width: 100%; max-width: 600px;"></video>
-                <canvas id="canvas" style="display:none;"></canvas>
-                <div class="preview-container">
-                    <canvas id="correctedCanvas" style="display:none;"></canvas>
-                    <div id="calibrationPoints"></div>
-                </div>
-            </div>
-            
-            <div class="model-selector">
-                <label for="modelSelect">اختر نموذج التدريب:</label>
-                <select id="modelSelect">
-                    <option value="scanner">نموذج الماسح (أصلي)</option>
-                    <option value="a">النموذج أ</option>
-                    <option value="b">النموذج ب</option>
-                    <option value="c">النموذج ج</option>
-                    <option value="d">النموذج د</option>
-                </select>
-                <button id="analyzeModel" class="btn-warning">تحليل النموذج</button>
-            </div>
-            
-            <div id="coordinatesOutput" class="coordinates-display" style="display:none;">
-                <h3>إحداثيات الإجابات المستخرجة:</h3>
-                <pre id="coordinatesData"></pre>
-            </div>
-        </div>
-        
-        <div class="section">
-            <h2>⚙️ الإجابات النموذجية</h2>
-            <p>قم بتعيين الإجابات الصحيحة (1-10 لكل سؤال):</p>
-            
-            <div class="answer-grid" id="correctAnswersGrid">
-                <!-- سيتم إنشاء شبكة الإجابات ديناميكياً -->
-            </div>
-            
-            <div class="controls">
-                <button id="generateRandomAnswers" class="btn-warning">توليد إجابات عشوائية</button>
-                <button id="saveAnswers" class="btn-success">حفظ الإجابات</button>
-            </div>
-        </div>
-        
-        <div class="section">
-            <h2>🔍 عملية التصحيح</h2>
-            <div class="controls">
-                <button id="scanAnswers" disabled>مسح الإجابات</button>
-                <button id="resetScan" class="btn-danger">إعادة ضبط</button>
-            </div>
-            
-            <div id="scanResults" style="display:none;">
-                <div class="score-display">
-                    النتيجة: <span id="score">0</span>/20
-                </div>
-                
-                <div class="results">
-                    <div>
-                        <h3>الإجابات الممسوحة:</h3>
-                        <div class="answer-grid" id="scannedAnswersGrid">
-                            <!-- سيتم عرض الإجابات الممسوحة هنا -->
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <h3>مقارنة النتائج:</h3>
-                        <div class="answer-grid" id="comparisonGrid">
-                            <!-- سيتم عرض المقارنة هنا -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<header>
+  <h1>مصحح نموذج OMR — 20 سؤالًا (أ، ب، ج، د)</h1>
+  <p class="hint">وجّه النموذج أمام الكاميرا، التقط الصورة، ثم عدّل الشبكة حتى تتطابق الفقاعات تمامًا.</p>
+</header>
 
-    <script>
-        // المتغيرات العامة
-        let video = document.getElementById('video');
-        let canvas = document.getElementById('canvas');
-        let correctedCanvas = document.getElementById('correctedCanvas');
-        let ctx = canvas.getContext('2d');
-        let correctedCtx = correctedCanvas.getContext('2d');
-        let stream = null;
-        let capturedImage = null;
-        let correctedImage = null;
-        let calibrationPoints = [];
-        let answerCoordinates = [];
-        let correctAnswers = new Array(20).fill(1); // إجابات افتراضية
-        let scannedAnswers = new Array(20).fill(0);
-        let currentModel = 'scanner';
-        
-        // تحليل النماذج المختلفة
-        const modelPatterns = {
-            scanner: {
-                name: 'نموذج الماسح',
-                rows: 10,
-                columns: 2,
-                questionsPerColumn: 10,
-                pattern: [
-                    // إحداثيات افتراضية للنموذج الماسح
-                    {x: 0.1, y: 0.1}, {x: 0.2, y: 0.1}, {x: 0.3, y: 0.1}, {x: 0.4, y: 0.1}, {x: 0.5, y: 0.1},
-                    {x: 0.6, y: 0.1}, {x: 0.7, y: 0.1}, {x: 0.8, y: 0.1}, {x: 0.9, y: 0.1}, {x: 0.95, y: 0.1}
-                ]
-            },
-            a: {
-                name: 'النموذج أ',
-                rows: 10,
-                columns: 2,
-                questionsPerColumn: 10,
-                pattern: [] // سيتم تعبئتها ديناميكياً
-            },
-            b: {
-                name: 'النموذج ب',
-                rows: 10,
-                columns: 2,
-                questionsPerColumn: 10,
-                pattern: []
-            },
-            c: {
-                name: 'النموذج ج',
-                rows: 10,
-                columns: 2,
-                questionsPerColumn: 10,
-                pattern: []
-            },
-            d: {
-                name: 'النموذج د',
-                rows: 20,
-                columns: 1,
-                questionsPerColumn: 20,
-                pattern: []
-            }
-        };
-        
-        // تهيئة شبكة الإجابات النموذجية
-        function initializeAnswerGrid() {
-            const grid = document.getElementById('correctAnswersGrid');
-            grid.innerHTML = '';
-            
-            for (let i = 0; i < 20; i++) {
-                const div = document.createElement('div');
-                div.className = 'answer-item';
-                div.innerHTML = `
-                    <div>سؤال ${i + 1}</div>
-                    <select class="answer-select" data-question="${i}">
-                        ${Array.from({length: 10}, (_, j) => 
-                            `<option value="${j + 1}">${j + 1}</option>`
-                        ).join('')}
-                    </select>
-                `;
-                grid.appendChild(div);
-            }
-            
-            // تعيين القيم الافتراضية
-            document.querySelectorAll('.answer-select').forEach((select, index) => {
-                select.value = correctAnswers[index];
-                select.addEventListener('change', (e) => {
-                    correctAnswers[parseInt(e.target.dataset.question)] = parseInt(e.target.value);
-                });
-            });
-        }
-        
-        // تشغيل الكاميرا
-        document.getElementById('startCamera').addEventListener('click', async () => {
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        facingMode: 'environment',
-                        width: { ideal: 1920 },
-                        height: { ideal: 1080 }
-                    } 
-                });
-                video.srcObject = stream;
-                video.style.display = 'block';
-                document.getElementById('capture').disabled = false;
-                document.getElementById('startCamera').disabled = true;
-            } catch (err) {
-                alert('خطأ في الوصول إلى الكاميرا: ' + err.message);
-            }
-        });
-        
-        // التقاط صورة
-        document.getElementById('capture').addEventListener('click', () => {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0);
-            
-            capturedImage = new Image();
-            capturedImage.src = canvas.toDataURL('image/png');
-            capturedImage.onload = () => {
-                video.style.display = 'none';
-                canvas.style.display = 'block';
-                document.getElementById('correctPerspective').disabled = false;
-                document.getElementById('retake').disabled = false;
-                document.getElementById('capture').disabled = true;
-                
-                // إظهار نقاط المعايرة
-                showCalibrationPoints();
-            };
-        });
-        
-        // إعادة التقاط
-        document.getElementById('retake').addEventListener('click', () => {
-            video.style.display = 'block';
-            canvas.style.display = 'none';
-            correctedCanvas.style.display = 'none';
-            document.getElementById('capture').disabled = false;
-            document.getElementById('correctPerspective').disabled = true;
-            document.getElementById('retake').disabled = true;
-            document.getElementById('scanAnswers').disabled = true;
-        });
-        
-        // إظهار نقاط المعايرة
-        function showCalibrationPoints() {
-            const container = document.getElementById('calibrationPoints');
-            container.innerHTML = '';
-            
-            // 6 نقاط للمربعات (افتراضية - يمكن تعديلها)
-            const points = [
-                {x: 0.1, y: 0.1, id: 1},   // أعلى اليسار
-                {x: 0.9, y: 0.1, id: 2},   // أعلى اليمين
-                {x: 0.1, y: 0.5, id: 3},   // منتصف اليسار
-                {x: 0.9, y: 0.5, id: 4},   // منتصف اليمين
-                {x: 0.1, y: 0.9, id: 5},   // أسفل اليسار
-                {x: 0.9, y: 0.9, id: 6}    // أسفل اليمين
-            ];
-            
-            points.forEach(point => {
-                const div = document.createElement('div');
-                div.className = 'calibration-point';
-                div.style.left = `${point.x * 100}%`;
-                div.style.top = `${point.y * 100}%`;
-                div.title = `نقطة معايرة ${point.id}`;
-                container.appendChild(div);
-            });
-        }
-        
-        // تصحيح تشوه المنظور
-        document.getElementById('correctPerspective').addEventListener('click', () => {
-            if (!capturedImage) return;
-            
-            // تصحيح افتراضي (في التطبيق الحقيقي، سيتم استخدام Homography)
-            correctedCanvas.width = 800;
-            correctedCanvas.height = 1000;
-            
-            correctedCtx.fillStyle = 'white';
-            correctedCtx.fillRect(0, 0, correctedCanvas.width, correctedCanvas.height);
-            
-            // رسم الصورة المصححة (محاكاة)
-            correctedCtx.drawImage(
-                capturedImage,
-                50, 50, // نقطة البداية
-                700, 900 // الحجم
-            );
-            
-            correctedCanvas.style.display = 'block';
-            canvas.style.display = 'none';
-            document.getElementById('scanAnswers').disabled = false;
-            
-            // استخراج إحداثيات الإجابات
-            extractAnswerCoordinates();
-        });
-        
-        // استخراج إحداثيات الإجابات من النموذج
-        function extractAnswerCoordinates() {
-            answerCoordinates = [];
-            const model = modelPatterns[currentModel];
-            
-            if (model.columns === 2) {
-                // نموذج ذو عمودين
-                for (let row = 0; row < model.rows; row++) {
-                    for (let col = 0; col < model.columns; col++) {
-                        const questionNum = col * model.questionsPerColumn + row + 1;
-                        const x = col === 0 ? 0.2 : 0.6; // مواضع افتراضية
-                        const y = 0.1 + (row * 0.08);
-                        
-                        answerCoordinates.push({
-                            question: questionNum,
-                            x: x * correctedCanvas.width,
-                            y: y * correctedCanvas.height,
-                            width: 30,
-                            height: 30
-                        });
-                    }
-                }
-            } else {
-                // نموذج ذو عمود واحد
-                for (let i = 0; i < model.questionsPerColumn; i++) {
-                    answerCoordinates.push({
-                        question: i + 1,
-                        x: 0.4 * correctedCanvas.width,
-                        y: (0.05 + (i * 0.045)) * correctedCanvas.height,
-                        width: 30,
-                        height: 30
-                    });
-                }
-            }
-            
-            // عرض الإحداثيات
-            document.getElementById('coordinatesOutput').style.display = 'block';
-            document.getElementById('coordinatesData').textContent = 
-                JSON.stringify(answerCoordinates, null, 2);
-        }
-        
-        // تحليل النموذج المحدد
-        document.getElementById('analyzeModel').addEventListener('click', () => {
-            currentModel = document.getElementById('modelSelect').value;
-            alert(`تم تحليل ${modelPatterns[currentModel].name}`);
-            
-            if (correctedCanvas.style.display === 'block') {
-                extractAnswerCoordinates();
-            }
-        });
-        
-        // مسح الإجابات
-        document.getElementById('scanAnswers').addEventListener('click', () => {
-            if (answerCoordinates.length === 0) {
-                alert('الرجاء استخراج إحداثيات الإجابات أولاً');
-                return;
-            }
-            
-            // محاكاة مسح الإجابات (في التطبيق الحقيقي، سيتم تحليل الصورة)
-            scannedAnswers = correctAnswers.map(() => Math.floor(Math.random() * 10) + 1);
-            
-            // عرض النتائج
-            displayScanResults();
-        });
-        
-        // عرض نتائج المسح
-        function displayScanResults() {
-            const scannedGrid = document.getElementById('scannedAnswersGrid');
-            const comparisonGrid = document.getElementById('comparisonGrid');
-            scannedGrid.innerHTML = '';
-            comparisonGrid.innerHTML = '';
-            
-            let score = 0;
-            
-            for (let i = 0; i < 20; i++) {
-                const isCorrect = scannedAnswers[i] === correctAnswers[i];
-                if (isCorrect) score++;
-                
-                // شبكة الإجابات الممسوحة
-                const scannedDiv = document.createElement('div');
-                scannedDiv.className = `answer-item ${isCorrect ? 'correct' : 'incorrect'}`;
-                scannedDiv.innerHTML = `
-                    <div>سؤال ${i + 1}</div>
-                    <div style="font-size: 20px; font-weight: bold;">${scannedAnswers[i]}</div>
-                `;
-                scannedGrid.appendChild(scannedDiv);
-                
-                // شبكة المقارنة
-                const compareDiv = document.createElement('div');
-                compareDiv.className = `answer-item ${isCorrect ? 'correct' : 'incorrect'}`;
-                compareDiv.innerHTML = `
-                    <div>سؤال ${i + 1}</div>
-                    <div>المسح: ${scannedAnswers[i]}</div>
-                    <div>النموذج: ${correctAnswers[i]}</div>
-                    <div>${isCorrect ? '✅ صحيح' : '❌ خطأ'}</div>
-                `;
-                comparisonGrid.appendChild(compareDiv);
-            }
-            
-            // عرض النتيجة
-            document.getElementById('score').textContent = score;
-            document.getElementById('scanResults').style.display = 'block';
-        }
-        
-        // توليد إجابات عشوائية
-        document.getElementById('generateRandomAnswers').addEventListener('click', () => {
-            correctAnswers = Array.from({length: 20}, () => Math.floor(Math.random() * 10) + 1);
-            
-            document.querySelectorAll('.answer-select').forEach((select, index) => {
-                select.value = correctAnswers[index];
-            });
-            
-            alert('تم توليد إجابات عشوائية');
-        });
-        
-        // حفظ الإجابات
-        document.getElementById('saveAnswers').addEventListener('click', () => {
-            localStorage.setItem('correctAnswers', JSON.stringify(correctAnswers));
-            alert('تم حفظ الإجابات النموذجية');
-        });
-        
-        // إعادة الضبط
-        document.getElementById('resetScan').addEventListener('click', () => {
-            scannedAnswers = new Array(20).fill(0);
-            document.getElementById('scanResults').style.display = 'none';
-        });
-        
-        // تحميل الإجابات المحفوظة
-        function loadSavedAnswers() {
-            const saved = localStorage.getItem('correctAnswers');
-            if (saved) {
-                correctAnswers = JSON.parse(saved);
-            }
-        }
-        
-        // تهيئة التطبيق
-        window.addEventListener('DOMContentLoaded', () => {
-            loadSavedAnswers();
-            initializeAnswerGrid();
-        });
-    </script>
+<main>
+  <section class="panel">
+    <h2>الكاميرا والمعالجة</h2>
+    <video id="video" playsinline autoplay muted></video>
+    <div style="margin-top:8px; display:flex; gap:8px;">
+      <button id="initCam">تشغيل الكاميرا</button>
+      <button id="capture" class="secondary">التقاط</button>
+      <button id="analyze">تحليل</button>
+      <button id="exportCsv" class="secondary">تصدير CSV</button>
+    </div>
+    <canvas id="canvas" width="1280" height="960" style="margin-top:8px;"></canvas>
+
+    <div class="grid" id="results"></div>
+  </section>
+
+  <aside class="panel">
+    <h2>المعايرة</h2>
+    <div class="row"><label>الدوران (°)</label><input type="range" id="rot" min="-10" max="10" step="0.1" value="0"></div>
+    <div class="row"><label>العتبة (0–255)</label><input type="range" id="thresh" min="60" max="220" step="1" value="140"></div>
+    <div class="row"><label>نصف قطر الفقاعة (px)</label><input type="range" id="radius" min="10" max="40" step="1" value="18"></div>
+
+    <h2>الهندسة العامة</h2>
+    <div class="row"><label>إزاحة X (px)</label><input type="range" id="offsetX" min="-200" max="200" step="1" value="0"></div>
+    <div class="row"><label>إزاحة Y (px)</label><input type="range" id="offsetY" min="-200" max="200" step="1" value="0"></div>
+    <div class="row"><label>المسافة بين الصفوف (px)</label><input type="range" id="rowGap" min="30" max="80" step="1" value="44"></div>
+    <div class="row"><label>المسافة بين الفقاعات (px)</label><input type="range" id="bubbleGap" min="40" max="120" step="1" value="80"></div>
+
+    <h2>أماكن الأعمدة</h2>
+    <div class="row"><label>مركز عمود اليمين X</label><input type="number" id="colRightX" value="940"></div>
+    <div class="row"><label>مركز عمود اليسار X</label><input type="number" id="colLeftX" value="360"></div>
+    <div class="row"><label>Y أول صف (عمود اليمين)</label><input type="number" id="startYRight" value="160"></div>
+    <div class="row"><label>Y أول صف (عمود اليسار)</label><input type="number" id="startYLeft" value="160"></div>
+
+    <h2>مفتاح الإجابة الديناميكي</h2>
+    <div class="row"><label>إدخال سريع (مفصول بفواصل)</label><input type="text" id="keyCsv" placeholder="أ,ب,ج,د,أ,..." /></div>
+    <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; margin-top:8px;" id="keyGrid"></div>
+    <div style="margin-top:8px; display:flex; gap:8px;">
+      <button id="applyKey" class="secondary">تطبيق الإدخال سريعًا</button>
+      <button id="resetKey" class="secondary">إعادة ضبط المفتاح</button>
+    </div>
+  </aside>
+</main>
+
+<script>
+const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d', { willReadFrequently: true });
+const resultsDiv = document.getElementById('results');
+
+const controls = {
+  rot: document.getElementById('rot'),
+  thresh: document.getElementById('thresh'),
+  radius: document.getElementById('radius'),
+  offsetX: document.getElementById('offsetX'),
+  offsetY: document.getElementById('offsetY'),
+  rowGap: document.getElementById('rowGap'),
+  bubbleGap: document.getElementById('bubbleGap'),
+  colRightX: document.getElementById('colRightX'),
+  colLeftX: document.getElementById('colLeftX'),
+  startYRight: document.getElementById('startYRight'),
+  startYLeft: document.getElementById('startYLeft'),
+};
+
+const initCamBtn = document.getElementById('initCam');
+const captureBtn = document.getElementById('capture');
+const analyzeBtn = document.getElementById('analyze');
+const exportCsvBtn = document.getElementById('exportCsv');
+
+const keyGrid = document.getElementById('keyGrid');
+const keyCsv = document.getElementById('keyCsv');
+const applyKeyBtn = document.getElementById('applyKey');
+const resetKeyBtn = document.getElementById('resetKey');
+
+const OPTIONS_RTL = ['أ','ب','ج','د']; // من اليمين لليسار
+let answerKey = new Array(20).fill(null);
+
+// بناء واجهة إدخال المفتاح
+function buildKeyGrid() {
+  keyGrid.innerHTML = '';
+  for (let i = 0; i < 20; i++) {
+    const wrap = document.createElement('div');
+    const label = document.createElement('label');
+    label.textContent = `س${i+1}`;
+    const sel = document.createElement('select');
+    sel.innerHTML = `<option value="">—</option>` + OPTIONS_RTL.map(o=>`<option>${o}</option>`).join('');
+    sel.value = answerKey[i] ?? '';
+    sel.onchange = () => answerKey[i] = sel.value || null;
+    wrap.appendChild(label);
+    wrap.appendChild(sel);
+    keyGrid.appendChild(wrap);
+  }
+}
+
+// تطبيق إدخال CSV للمفتاح
+applyKeyBtn.onclick = () => {
+  const parts = keyCsv.value.split(/[,\s]+/).map(s=>s.trim()).filter(Boolean);
+  for (let i=0; i<Math.min(parts.length, 20); i++) {
+    const val = parts[i];
+    answerKey[i] = OPTIONS_RTL.includes(val) ? val : null;
+  }
+  buildKeyGrid();
+};
+resetKeyBtn.onclick = () => {
+  answerKey = new Array(20).fill(null);
+  keyCsv.value = '';
+  buildKeyGrid();
+};
+
+// تشغيل الكاميرا
+initCamBtn.onclick = async () => {
+  const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+  video.srcObject = stream;
+};
+
+// التقاط إطار إلى اللوحة
+captureBtn.onclick = () => {
+  const w = canvas.width, h = canvas.height;
+  // نملأ خلفية
+  ctx.save();
+  ctx.clearRect(0,0,w,h);
+  // رسم الفيديو مع تدوير بسيط
+  const angle = (+controls.rot.value) * Math.PI / 180;
+  ctx.translate(w/2, h/2);
+  ctx.rotate(angle);
+  const scale = 1.0;
+  const vw = video.videoWidth || 1280;
+  const vh = video.videoHeight || 720;
+  const s = Math.min(w/vw, h/vh) * scale;
+  ctx.drawImage(video, -vw*s/2, -vh*s/2, vw*s, vh*s);
+  ctx.restore();
+  // رسم شبكة إرشادية
+  drawGuide();
+};
+
+// رسم الشبكة الإرشادية فوق اللوحة
+function drawGuide() {
+  const w = canvas.width, h = canvas.height;
+  const r = +controls.radius.value;
+  const rowGap = +controls.rowGap.value;
+  const bubbleGap = +controls.bubbleGap.value;
+  const offX = +controls.offsetX.value;
+  const offY = +controls.offsetY.value;
+  const colRightX = +controls.colRightX.value + offX;
+  const colLeftX  = +controls.colLeftX.value  + offX;
+  const startYRight = +controls.startYRight.value + offY;
+  const startYLeft  = +controls.startYLeft.value  + offY;
+
+  ctx.save();
+  ctx.globalAlpha = 0.65;
+  ctx.lineWidth = 1.2;
+
+  // عمود اليمين: أسئلة 1–10
+  for (let i=0; i<10; i++) {
+    const cy = startYRight + i*rowGap;
+    for (let k=0; k<4; k++) {
+      const cx = colRightX - k*bubbleGap; // من اليمين لليسار: أ ب ج د
+      ctx.strokeStyle = '#10b981';
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+      // تسمية صغيرة
+      ctx.fillStyle = '#0ea5e9';
+      ctx.font = '12px Segoe UI';
+      ctx.fillText(OPTIONS_RTL[k], cx-4, cy- (r+6));
+    }
+    // رقم السؤال
+    ctx.fillStyle = '#111827';
+    ctx.font = '12px Segoe UI';
+    ctx.fillText(`${i+1}`, colRightX + 5, cy+4);
+  }
+
+  // عمود اليسار: أسئلة 11–20
+  for (let i=0; i<10; i++) {
+    const cy = startYLeft + i*rowGap;
+    for (let k=0; k<4; k++) {
+      const cx = colLeftX - k*bubbleGap;
+      ctx.strokeStyle = '#f59e0b';
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+      ctx.fillStyle = '#0ea5e9';
+      ctx.font = '12px Segoe UI';
+      ctx.fillText(OPTIONS_RTL[k], cx-4, cy- (r+6));
+    }
+    ctx.fillStyle = '#111827';
+    ctx.font = '12px Segoe UI';
+    ctx.fillText(`${i+11}`, colLeftX + 5, cy+4);
+  }
+  ctx.restore();
+}
+
+// تحليل الإظلام داخل كل فقاعة
+analyzeBtn.onclick = () => {
+  const data = readAnswers();
+  renderResults(data);
+};
+
+// قراءة الإجابات المظللة
+function readAnswers() {
+  const r = +controls.radius.value;
+  const rowGap = +controls.rowGap.value;
+  const bubbleGap = +controls.bubbleGap.value;
+  const offX = +controls.offsetX.value;
+  const offY = +controls.offsetY.value;
+  const colRightX = +controls.colRightX.value + offX;
+  const colLeftX  = +controls.colLeftX.value  + offX;
+  const startYRight = +controls.startYRight.value + offY;
+  const startYLeft  = +controls.startYLeft.value  + offY;
+  const threshold = +controls.thresh.value;
+
+  const res = [];
+  // 1–10
+  for (let i=0; i<10; i++) {
+    const cy = startYRight + i*rowGap;
+    const bubbles = [];
+    for (let k=0; k<4; k++) {
+      const cx = colRightX - k*bubbleGap;
+      const darkness = sampleCircleDarkness(cx, cy, r);
+      bubbles.push({ option: OPTIONS_RTL[k], darkness });
+    }
+    const picked = decidePick(bubbles, threshold);
+    res.push({ q: i+1, bubbles, pick: picked });
+  }
+  // 11–20
+  for (let i=0; i<10; i++) {
+    const cy = startYLeft + i*rowGap;
+    const bubbles = [];
+    for (let k=0; k<4; k++) {
+      const cx = colLeftX - k*bubbleGap;
+      const darkness = sampleCircleDarkness(cx, cy, r);
+      bubbles.push({ option: OPTIONS_RTL[k], darkness });
+    }
+    const picked = decidePick(bubbles, threshold);
+    res.push({ q: i+11, bubbles, pick: picked });
+  }
+  return res;
+}
+
+// أخذ متوسط الإظلام داخل دائرة
+function sampleCircleDarkness(cx, cy, r) {
+  const x0 = Math.max(0, Math.floor(cx - r));
+  const y0 = Math.max(0, Math.floor(cy - r));
+  const x1 = Math.min(canvas.width-1, Math.floor(cx + r));
+  const y1 = Math.min(canvas.height-1, Math.floor(cy + r));
+  const img = ctx.getImageData(x0, y0, x1-x0+1, y1-y0+1);
+  const { data, width, height } = img;
+  let sum = 0, count = 0;
+  const r2 = r*r;
+  for (let y=0; y<height; y++) {
+    for (let x=0; x<width; x++) {
+      const dx = x - (cx - x0);
+      const dy = y - (cy - y0);
+      if (dx*dx + dy*dy <= r2) {
+        const idx = (y*width + x) * 4;
+        // تحويل إلى رمادي سريع
+        const R = data[idx], G = data[idx+1], B = data[idx+2];
+        const gray = (R*0.2126 + G*0.7152 + B*0.0722); // luminance
+        sum += (255 - gray); // إظلام
+        count++;
+      }
+    }
+  }
+  return count ? (sum / count) : 0;
+}
+
+// اختيار الفقاعة المظللة
+function decidePick(bubbles, threshold) {
+  // قاعدة: أي فقاعة يتجاوز إظلامها العتبة تعتبر مظللة.
+  const marked = bubbles.filter(b => b.darkness >= threshold);
+  if (marked.length === 1) return marked[0].option;
+  // إن تعددت، نختار الأشد إظلامًا ونضع ملاحظة
+  if (marked.length > 1) {
+    marked.sort((a,b)=>b.darkness - a.darkness);
+    return marked[0].option + ' (تداخل)';
+  }
+  // لا شيء مظلل بوضوح: نختار الأشد إظلامًا إن كان مقاربًا للعتبة
+  const maxB = bubbles.slice().sort((a,b)=>b.darkness - a.darkness)[0];
+  if (maxB.darkness >= threshold * 0.85) return maxB.option + ' (ضعيف)';
+  return null;
+}
+
+// عرض النتائج وجدول التصحيح
+function renderResults(data) {
+  // حساب الدرجة
+  let correct = 0;
+  const rows = data.map(row => {
+    const key = answerKey[row.q - 1];
+    const isCorrect = key && row.pick && row.pick.startsWith(key);
+    if (isCorrect) correct++;
+    const bulbs = row.bubbles.map(b => `${b.option}:${b.darkness.toFixed(0)}`).join(' | ');
+    return `<tr>
+      <td>${row.q}</td>
+      <td>${row.pick ?? '—'}</td>
+      <td>${key ?? '—'}</td>
+      <td class="${isCorrect ? 'ok' : 'bad'}">${isCorrect ? 'صح' : 'خطأ'}</td>
+      <td>${bulbs}</td>
+    </tr>`;
+  }).join('');
+
+  resultsDiv.innerHTML = `
+    <h2>النتائج</h2>
+    <p><strong>الدرجة:</strong> ${correct} / 20</p>
+    <table>
+      <thead><tr>
+        <th>سؤال</th><th>إجابة مكتشفة</th><th>الإجابة النموذجية</th><th>نتيجة</th><th>قياسات الإظلام</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+// تصدير CSV
+exportCsvBtn.onclick = () => {
+  const data = readAnswers();
+  const lines = ['Question,Detected,Key,Correct,Dark_A,Dark_B,Dark_C,Dark_D'];
+  for (const row of data) {
+    const key = answerKey[row.q - 1] ?? '';
+    const det = row.pick ?? '';
+    const isCorrect = key && det && det.startsWith(key) ? 'TRUE' : 'FALSE';
+    const darks = OPTIONS_RTL.map(opt => {
+      const b = row.bubbles.find(bb => bb.option === opt);
+      return b ? Math.round(b.darkness) : '';
+    }).join(',');
+    lines.push([row.q, det, key, isCorrect, darks].join(','));
+  }
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'omr_results.csv'; a.click();
+  URL.revokeObjectURL(url);
+};
+
+// إعادة بناء واجهة المفتاح عند التحميل
+buildKeyGrid();
+
+// تحديث الشبكة عند تغيير أي منزلق
+Object.values(controls).forEach(el => el.addEventListener('input', drawGuide));
+</script>
 </body>
 </html>
